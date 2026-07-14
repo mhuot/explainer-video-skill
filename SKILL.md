@@ -6,15 +6,17 @@ description: "Produce a 45–90 second narrated explainer video, how-it-works vi
 # Explainer Video Production (local, offline-capable toolchain)
 
 Method credit: **Idan Shimon** (Microsoft, github.com/idanshimon). His
-*"How AI Reads a Heart"* 58-second explainer — produced entirely by an AI
-agent driving OpenMontage, HyperFrames, Kokoro, and FFmpeg locally at $0 —
-defined this format, and his cardiology solution preview showed the
-companion use: a video demo of a product dashboard built as source code.
+58-second concept explainer — produced entirely by an AI agent driving
+OpenMontage, HyperFrames, Kokoro, and FFmpeg locally at $0 — defined this
+format, and his cardiology solution preview showed the companion use: a
+video demo of a product dashboard built as source code.
 The operating premise is his: **the entire video is source code — any scene,
 word, color, or timing is a one-line edit and a re-render.**
 
-Written for **Microsoft Scout** and any other agent that can read files and
-run shell commands. Do not assume a clone under `~`: set
+Written for **Microsoft Scout**, **Claude Code**, **GitHub Copilot CLI**, and
+**Google Antigravity** (all four discover this skill natively via
+`install.sh`) — and any other agent that can read files and run shell
+commands. Do not assume a clone under `~`: set
 `EXPLAINER_VIDEO_SKILL_DIR` to the directory containing this `SKILL.md`.
 Its `templates/` directory has the TTS script, composition skeleton, and
 decision-log schema; `README.md` covers installation.
@@ -32,8 +34,8 @@ from measured narration audio, never guessed.**
 An explainer teaches or previews; it does not sell. No pain-hook theatrics,
 no competitor table, no hard CTA. The two shapes:
 
-1. **Concept explainer** ("How AI reads a heart") — how a system, model, or
-   process works, step by step.
+1. **Concept explainer** ("How an anomaly detector works") — how a system,
+   model, or process works, step by step.
 2. **Solution preview** (cardiology dashboard demo) — a guided tour of a
    product/solution UI, built as animated HTML mockups of the real screens.
 

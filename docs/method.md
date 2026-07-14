@@ -3,8 +3,8 @@
 Credit: **Idan Shimon** (Microsoft). Two of his productions define the two
 shapes this skill produces:
 
-- *"How AI Reads a Heart"* — a 58-second **concept explainer** produced
-  entirely by an AI agent driving an open-source, code-based video stack
+- A 58-second **concept explainer** produced entirely by an AI agent driving
+  an open-source, code-based video stack
   (OpenMontage → HyperFrames → Kokoro → FFmpeg), rendered locally without
   paid cloud generation, at $0. No video editor, no manual animation, no
   stock-footage licensing.
