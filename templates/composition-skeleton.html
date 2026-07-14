@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>SKELETON — explainer composition (seek-safe, offline)</title>
+<!--
+  Minimal explainer skeleton: a hook scene, one "how it works" step scene
+  with a step chip + flow diagram, and narration audio. Copy, rename the
+  composition id, extend to the full arc, and derive ALL numbers from
+  production/assets/audio/durations.json. The three timing surfaces that
+  must always agree:
+    1. scene <section data-start / data-duration>
+    2. <audio data-start / data-duration>
+    3. the JS scene-start constants (S1, S2, ...)
+-->
+<style>
+  :root {                    /* explainer theme — swap to re-skin everything */
+    --ground: #f5f7fa;       /* light neutral; dark also works */
+    --panel: #ffffff;
+    --ink: #1a2733;
+    --ink-dim: #51606d;      /* keep >= WCAG AA on --ground; `check` enforces */
+    --accent: #0078d4;       /* one accent; Microsoft blue suits previews */
+    --hairline: #d5dde5;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  #stage {                   /* RULE: root is an explicitly sized box */
+    position: relative; width: 1920px; height: 1080px; overflow: hidden;
+    font-family: "Segoe UI", system-ui, sans-serif;  /* lint reports the bundled substitute */
+    color: var(--ink);
+  }
+  .fill { position: absolute; inset: 0; }
+  /* RULE: background on a full-bleed CHILD, never on the root */
+  #bg { background: var(--ground); }
+  .scene { position: absolute; inset: 0; }
+
+  /* hook scene: the question, centered */
+  #s1-q { position: absolute; left: 240px; right: 240px; top: 440px; display: block;
+          font-size: 76px; font-weight: 650; text-align: center; opacity: 0; }
+  #s1-q b { color: var(--accent); font-weight: 650; }
+
+  /* step scene: chip + flow diagram */
+  .chip { position: absolute; left: 120px; top: 120px; display: block;
+          width: 96px; height: 96px; border-radius: 20px; background: var(--accent);
+          color: #ffffff; font-size: 44px; font-weight: 700;
+          text-align: center; line-height: 96px; opacity: 0; }
+  #s2-title { position: absolute; left: 250px; top: 142px; display: block;
+              font-size: 52px; font-weight: 650; opacity: 0; }
+  #s2-flow { position: absolute; left: 240px; top: 320px; display: block; }
+  .node { fill: var(--panel); stroke: var(--hairline); stroke-width: 2; }
+  .edge { fill: none; stroke: var(--accent); stroke-width: 4;
+          stroke-dasharray: 600; stroke-dashoffset: 600; }  /* drawn by GSAP */
+  .nlabel { font-family: "Segoe UI", system-ui, sans-serif; font-size: 28px;
+            fill: var(--ink); opacity: 0; }
+</style>
+</head>
+<body>
+<!-- Standalone root: directly in <body>, NO <template> wrapper. -->
+<div id="stage" data-composition-id="explainer-skeleton" data-start="0" data-duration="14"
+     data-width="1920" data-height="1080">
+
+  <div id="bg" class="fill"></div>
+
+  <section class="scene clip" id="scene-1" data-start="0" data-duration="6" data-track-index="1">
+    <div id="s1-q">What happens in the <b>ten seconds</b> after the data arrives?</div>
+  </section>
+
+  <section class="scene clip" id="scene-2" data-start="6" data-duration="8" data-track-index="1">
+    <div class="chip" id="s2-chip">01</div>
+    <div id="s2-title">Signals come in</div>
+    <svg id="s2-flow" width="1440" height="560" viewBox="0 0 1440 560">
+      <rect class="node" x="40"  y="220" width="300" height="120" rx="16"/>
+      <rect class="node" x="570" y="220" width="300" height="120" rx="16"/>
+      <rect class="node" x="1100" y="220" width="300" height="120" rx="16"/>
+      <polyline class="edge" id="edge-1" points="340,280 570,280"/>
+      <polyline class="edge" id="edge-2" points="870,280 1100,280"/>
+      <text class="nlabel" id="nl-1" x="110" y="290">Ingest</text>
+      <text class="nlabel" id="nl-2" x="640" y="290">Analyze</text>
+      <text class="nlabel" id="nl-3" x="1170" y="290">Explain</text>
+    </svg>
+  </section>
+
+  <!-- RULE: media are DIRECT children of the root; every one has an id
+       (missing id = SILENT audio in renders). Track 7 = narration. -->
+  <audio id="aud-s1" data-start="0.5" data-duration="5.0" data-track-index="7" data-volume="1" src="assets/audio/s1_hook.wav"></audio>
+  <audio id="aud-s2" data-start="6.5" data-duration="7.0" data-track-index="7" data-volume="1" src="assets/audio/s3_step1.wav"></audio>
+
+  <!-- RULE: vendored gsap, never a CDN (offline determinism). -->
+  <script src="assets/gsap.min.js"></script>
+  <script>
+    // Scene starts — must match the data-start attributes above.
+    const S1 = 0, S2 = 6;
+
+    // RULE: exactly ONE paused timeline, built synchronously, registered
+    // under the composition id. Render length = root data-duration.
+    const tl = gsap.timeline({ paused: true });
+
+    // RULE: entrances are fromTo — seek-safe; no CSS transform initial states.
+    tl.fromTo("#s1-q", { opacity: 0, y: 26 },
+      { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }, S1 + 0.4);
+
+    tl.fromTo("#s2-chip", { opacity: 0, scale: 0.9 },
+      { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.4)" }, S2 + 0.3);
+    tl.fromTo("#s2-title", { opacity: 0, x: -20 },
+      { opacity: 1, x: 0, duration: 0.6, ease: "power2.out" }, S2 + 0.5);
+    // Flow edges draw as narration reaches them; labels land with the draw.
+    tl.to("#edge-1", { strokeDashoffset: 0, duration: 0.9, ease: "power1.inOut" }, S2 + 1.2);
+    tl.to("#edge-2", { strokeDashoffset: 0, duration: 0.9, ease: "power1.inOut" }, S2 + 2.6);
+    tl.to(".nlabel", { opacity: 1, duration: 0.4, stagger: 0.7, ease: "none" }, S2 + 0.9);
+
+    // RULE: finite repeats only; no Date.now / Math.random / network.
+    // Animate only transforms/opacity (+ strokeDashoffset for SVG draws).
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["explainer-skeleton"] = tl;
+  </script>
+</div>
+</body>
+</html>

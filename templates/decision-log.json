@@ -1,0 +1,18 @@
+{
+  "project": "<explainer project name>",
+  "pipeline": "animated-explainer",
+  "created": "<YYYY-MM-DD>",
+  "budget": { "mode": "observe", "estimated_usd": 0.0, "actual_usd": 0.0 },
+  "_schema_note": "Append-only. A decision's identity is the (category, subject) pair; to change a decision, APPEND a new entry with the identical category+subject and move the old choice into options_considered with rejected_because explaining the change. Never edit or delete old entries.",
+  "decisions": [
+    {
+      "category": "pipeline_selection | explainer_shape | voice_selection | music_selection | output_profile | approval_gates | delivery_packaging",
+      "subject": "<stable human-readable subject, e.g. 'Explainer shape'>",
+      "selected": "<the choice, e.g. 'solution preview (UI tour)' or 'concept explainer (step diagrams)'>",
+      "options_considered": ["<choice>", "<alternative 1>", "<alternative 2>"],
+      "rejected_because": "<why the alternatives lost>",
+      "confidence": 0.8,
+      "approved_by": "<optional: 'user brief' when the user's request fixed this>"
+    }
+  ]
+}
