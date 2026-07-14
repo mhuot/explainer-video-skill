@@ -23,7 +23,7 @@ measured padding produces a planned composition of 73.750 seconds.
 
 The measured manifest, seven `<audio>` durations, seven scene boundaries, and
 JS constants were compared. All seven audio durations match
-`durations.json`. The composition has 143 unique IDs, including seven unique,
+`durations.json`. The composition has 142 unique IDs, including seven unique,
 explicit audio IDs. No HTTP, HTTPS, or CDN reference exists in `index.html`;
 GSAP is vendored locally.
 

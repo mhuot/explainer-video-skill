@@ -11,6 +11,6 @@
 | S7 | Recap | Five concise verbs on the pipeline; restrained Idan Shimon method credit. |
 
 All scene and audio starts, durations, and JS constants are generated from
-`production/assets/audio/durations.json` with 0.5 seconds initial lead,
-0.5 seconds inter-scene breathing room, and 0.9 seconds closing tail.
-
+`production/assets/audio/durations.json` with a 0.5-second initial narration
+lead, 0.4-second gaps between narration clips, 0.4-second visual pre-rolls,
+and a 0.8-second closing tail.

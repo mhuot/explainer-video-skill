@@ -16,16 +16,16 @@ subject repository.
 | Fact | Authoritative local source |
 | --- | --- |
 | The skill targets 45–90 second narrated explainers produced locally. | `README.md:5` |
-| It supports two shapes: concept explainers and solution previews. | `README.md:21-27`; `SKILL.md:35-39` |
-| Its pipeline locks the script, synthesizes per-scene narration, derives timing from measured audio, animates HTML/CSS/GSAP, validates, renders, and self-reviews. | `README.md:29-36`; `docs/method.md:58-68` |
-| The production record is auditable source, including script, measured timing, decisions, QA evidence, and HTML composition. | `README.md:38-40` |
+| It supports two shapes: concept explainers and solution previews. | `README.md:34-40`; `SKILL.md:35-39` |
+| Its pipeline locks the script, synthesizes per-scene narration, derives timing from measured audio, animates HTML/CSS/GSAP, validates, renders, and self-reviews. | `README.md:42-49`; `docs/method.md:58-68` |
+| The production record is auditable source, including script, measured timing, decisions, QA evidence, and HTML composition. | `README.md:51-53` |
 | Concept explainers use numbered step chips and narration-synchronized diagrams. | `SKILL.md:56-61`; `docs/method.md:40-45` |
 | Solution previews rebuild key screens as animated HTML cards with stats, charts, tables, and attention guidance. | `SKILL.md:62-68`; `docs/method.md:46-49` |
-| Every media element needs a unique explicit ID; validation proceeds through lint, browser check, midpoint snapshots, render, and post-render QA. | `docs/method.md:64-68`; `SKILL.md:269-280` |
-| Once dependencies, browser, and Kokoro model weights are cached, narration and rendering can run offline; installation and first-use downloads can require network. | `README.md:42-44`; `SKILL.md:20-25` |
-| The workflow requires no cloud generation, telemetry, or feedback submission. | `SKILL.md:20-25`; `SKILL.md:347` |
+| Every media element needs a unique explicit ID; validation proceeds through lint, browser check, midpoint snapshots, render, and post-render QA. | `docs/method.md:64-72`; `SKILL.md:268-289` |
+| Once dependencies, browser, and Kokoro model weights are cached, narration and rendering can run offline; installation and first-use downloads can require network. | `README.md:55-58`; `SKILL.md:20-27` |
+| The workflow requires no cloud generation, telemetry, or feedback submission. | `SKILL.md:20-27`; `SKILL.md:346-349` |
 | The stated output has no per-render credits or watermarks and costs $0 per render. | `README.md:5-7` |
-| Idan Shimon originated the demonstrated method; his concept explainer and cardiology solution preview define the two shapes. | `README.md:9-19`; `docs/method.md:3-16` |
+| Idan Shimon originated the demonstrated method; his concept explainer and cardiology solution preview define the two shapes. | `README.md:9-17`; `docs/method.md:3-16` |
 
 ## Honest comparison
 
@@ -62,4 +62,3 @@ that it replaces every editor or hosted template.
 - No claim of zero total cost beyond the repository's narrower “$0 per render.”
 - No claim that telemetry is technically impossible—only that it is not required
   and is not submitted in this production.
-
