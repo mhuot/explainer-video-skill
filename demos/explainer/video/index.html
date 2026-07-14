@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How explainer-video-skill works</title>
+<style>
+  :root {
+    --ground: #f3f0e8;
+    --panel: #fffdf8;
+    --ink: #17262c;
+    --muted: #526360;
+    --accent: #14766f;
+    --accent-soft: #dcebe6;
+    --line: #c7d1cc;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  #stage {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, sans-serif;
+  }
+  #background { position: absolute; inset: 0; background: var(--ground); }
+  #grain {
+    position: absolute; inset: 0; opacity: .18;
+    background-image: radial-gradient(#7d9189 0.75px, transparent 0.75px);
+    background-size: 28px 28px;
+  }
+  .scene { position: absolute; inset: 0; overflow: hidden; }
+  .eyebrow {
+    position: absolute; left: 118px; top: 76px;
+    color: var(--accent); font-size: 22px; font-weight: 750;
+    letter-spacing: 3px; text-transform: uppercase;
+  }
+  .scene-no {
+    position: absolute; right: 118px; top: 74px;
+    color: var(--muted); font: 600 22px monospace;
+  }
+  .title {
+    font-size: 66px; line-height: 1.08; letter-spacing: -2px;
+    font-weight: 690;
+  }
+  .subtitle { color: var(--muted); font-size: 29px; line-height: 1.45; }
+  .panel {
+    background: var(--panel); border: 2px solid var(--line);
+    border-radius: 26px; box-shadow: 0 18px 60px rgba(23, 38, 44, .08);
+  }
+  .step-chip {
+    display: flex; align-items: center; justify-content: center;
+    width: 88px; height: 88px; border-radius: 22px;
+    background: var(--accent); color: white;
+    font: 750 36px monospace;
+  }
+  .mono { font-family: monospace; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 10px;
+    border-radius: 999px; padding: 12px 18px;
+    background: var(--accent-soft); color: #105c57;
+    font-size: 20px; font-weight: 700;
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+  .flow-line {
+    fill: none; stroke: var(--accent); stroke-width: 5;
+    stroke-linecap: round; stroke-dasharray: 1000; stroke-dashoffset: 1000;
+  }
+
+  /* S1 */
+  #s1-question {
+    position: absolute; left: 250px; right: 250px; top: 270px;
+    text-align: center; font-size: 78px; line-height: 1.12;
+    letter-spacing: -3px; font-weight: 680;
+  }
+  #s1-question strong { color: var(--accent); font-weight: 720; }
+  #s1-rail { position: absolute; left: 280px; top: 690px; width: 1360px; height: 150px; }
+  .rail-node {
+    position: absolute; top: 54px; width: 152px; text-align: center;
+    color: var(--muted); font-size: 20px; font-weight: 650;
+  }
+  .rail-node::before {
+    content: ""; display: block; width: 20px; height: 20px;
+    margin: 0 auto 15px; border-radius: 50%; background: var(--accent);
+    border: 6px solid var(--accent-soft);
+  }
+  #s1-line {
+    position: absolute; left: 68px; right: 68px; top: 64px;
+    height: 4px; border-radius: 4px; background: var(--line);
+    transform-origin: left center;
+  }
+
+  /* S2 */
+  #s2-heading { position: absolute; left: 170px; top: 180px; width: 1580px; text-align: center; }
+  #s2-compare { position: absolute; left: 310px; top: 365px; width: 1300px; height: 280px; display: flex; gap: 34px; }
+  .compare-card { flex: 1; padding: 42px 48px; }
+  .compare-label { font-size: 22px; letter-spacing: 3px; font-weight: 750; color: var(--muted); }
+  .compare-main { margin-top: 28px; font-size: 48px; font-weight: 680; }
+  .compare-copy { margin-top: 14px; font-size: 25px; color: var(--muted); }
+  #s2-teach { border-color: var(--accent); }
+  #s2-teach .compare-label, #s2-teach .compare-main { color: var(--accent); }
+  #s2-arc { position: absolute; left: 285px; top: 745px; display: flex; align-items: center; gap: 18px; }
+  .arc-chip {
+    padding: 17px 23px; border: 2px solid var(--line); border-radius: 16px;
+    background: var(--panel); color: var(--ink); font-size: 20px; font-weight: 680;
+  }
+  .arc-arrow { color: var(--accent); font-size: 28px; font-weight: 800; }
+
+  /* Shared step layouts */
+  .step-head { position: absolute; left: 120px; top: 115px; display: flex; align-items: center; gap: 26px; }
+  .step-head .title { font-size: 57px; }
+  .step-copy { position: absolute; left: 128px; top: 250px; width: 720px; }
+  .step-copy .subtitle { margin-top: 22px; max-width: 650px; }
+
+  /* S3 */
+  #s3-board { position: absolute; left: 930px; top: 195px; width: 820px; height: 690px; }
+  #s3-sources { position: absolute; left: 50px; top: 75px; width: 225px; display: grid; gap: 20px; }
+  .source-card { padding: 18px 20px; font-size: 19px; font-weight: 700; color: var(--muted); }
+  .source-card span { display: block; color: var(--accent); font-size: 15px; margin-bottom: 7px; }
+  #s3-connect { position: absolute; left: 250px; top: 105px; width: 200px; height: 430px; }
+  #s3-script { position: absolute; left: 420px; top: 55px; width: 340px; height: 520px; padding: 30px; }
+  #s3-script h3 { font-size: 27px; }
+  .script-row { height: 13px; border-radius: 8px; background: var(--line); margin-top: 24px; transform-origin: left center; }
+  .script-row.accent { background: var(--accent); width: 72%; }
+  #s3-lock {
+    position: absolute; left: 495px; top: 603px; padding: 14px 22px;
+    border-radius: 14px; background: var(--accent); color: white;
+    font-size: 20px; font-weight: 760;
+  }
+
+  /* S4 */
+  #s4-audio { position: absolute; left: 900px; top: 190px; width: 850px; height: 700px; padding: 46px; }
+  #s4-files { display: flex; gap: 18px; }
+  .wav-card { width: 238px; padding: 20px; border: 2px solid var(--line); border-radius: 18px; }
+  .wav-name { color: var(--muted); font-size: 14px; }
+  .wav-duration { margin-top: 10px; color: var(--accent); font-size: 28px; font-weight: 760; }
+  .wave { height: 80px; display: flex; align-items: center; gap: 6px; margin-top: 14px; }
+  .wave i { display: block; width: 8px; border-radius: 5px; background: var(--accent); transform-origin: center center; }
+  #s4-code { margin-top: 34px; padding: 26px; border-radius: 18px; background: #17262c; color: #f4f5ef; font-size: 19px; line-height: 1.7; }
+  #s4-code .key { color: #8fddd3; }
+  #s4-ruler { margin-top: 30px; height: 90px; position: relative; }
+  #s4-ruler-line { position: absolute; left: 0; right: 0; top: 40px; height: 4px; background: var(--line); transform-origin: left center; }
+  .tick { position: absolute; top: 28px; width: 4px; height: 28px; background: var(--accent); }
+  .tick-label { position: absolute; top: 62px; color: var(--muted); font-size: 15px; }
+
+  /* S5 */
+  #s5-layers { position: absolute; left: 860px; top: 210px; width: 850px; height: 650px; }
+  .layer-card {
+    position: absolute; left: 0; width: 245px; height: 105px;
+    padding: 20px 24px; border: 2px solid var(--line); border-radius: 18px;
+    background: var(--panel);
+  }
+  .layer-card b { display: block; color: var(--accent); font-size: 25px; }
+  .layer-card span { display: block; margin-top: 7px; color: var(--muted); font-size: 17px; }
+  #s5-browser { position: absolute; left: 420px; top: 5px; width: 400px; height: 430px; overflow: hidden; }
+  #s5-browser-top { height: 48px; background: var(--accent-soft); padding: 17px 20px; }
+  #s5-browser-top i { display: inline-block; width: 10px; height: 10px; margin-right: 7px; border-radius: 50%; background: var(--accent); }
+  #s5-browser-body { position: relative; height: 382px; padding: 40px; }
+  #mini-chip { width: 58px; height: 58px; border-radius: 14px; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+  #mini-title { margin-top: 24px; width: 270px; height: 20px; border-radius: 10px; background: var(--ink); }
+  #mini-line { margin-top: 18px; width: 210px; height: 12px; border-radius: 8px; background: var(--line); }
+  #mini-flow { margin-top: 65px; display: flex; align-items: center; gap: 14px; }
+  #mini-flow span { width: 76px; height: 54px; border: 2px solid var(--accent); border-radius: 12px; }
+  #mini-flow i { width: 44px; height: 4px; background: var(--accent); transform-origin: left center; }
+  #s5-connector { position: absolute; left: 220px; top: 40px; width: 250px; height: 450px; }
+  #s5-badges { position: absolute; left: 420px; top: 485px; display: flex; gap: 16px; }
+
+  /* S6 */
+  #s6-title { position: absolute; left: 140px; top: 140px; width: 740px; }
+  #s6-gates { position: absolute; left: 130px; top: 375px; display: grid; grid-template-columns: repeat(4, 180px); gap: 24px; }
+  .gate { height: 190px; padding: 28px 24px; text-align: center; }
+  .gate-check {
+    width: 48px; height: 48px; margin: 0 auto 22px; border-radius: 50%;
+    background: var(--accent); color: #08191e; font-size: 29px; font-weight: 800; line-height: 48px;
+  }
+  .gate b { font-size: 23px; }
+  .gate span { display: block; margin-top: 11px; color: var(--muted); font-size: 16px; line-height: 1.35; }
+  #s6-loop { position: absolute; left: 1030px; top: 215px; width: 700px; height: 610px; }
+  #s6-loop svg { position: absolute; inset: 0; width: 700px; height: 610px; }
+  .loop-node {
+    position: absolute; width: 210px; height: 118px; padding-top: 39px;
+    text-align: center; font-size: 25px; font-weight: 730;
+  }
+  #loop-edit { left: 35px; top: 225px; }
+  #loop-render { right: 35px; top: 225px; }
+  #loop-source { left: 245px; top: 20px; width: 210px; }
+  #s6-result { position: absolute; left: 1005px; top: 860px; width: 750px; text-align: center; color: var(--accent); font-size: 29px; font-weight: 700; }
+
+  /* S7 */
+  #s7-heading { position: absolute; left: 250px; right: 250px; top: 170px; text-align: center; }
+  #s7-steps { position: absolute; left: 250px; top: 455px; display: flex; align-items: center; gap: 20px; }
+  .recap-step {
+    width: 230px; height: 135px; padding-top: 36px; text-align: center;
+    font-size: 27px; font-weight: 730;
+  }
+  .recap-step small { display: block; margin-top: 10px; color: var(--muted); font-size: 16px; font-weight: 600; }
+  #s7-credit { position: absolute; left: 0; right: 0; top: 760px; text-align: center; color: var(--muted); font-size: 24px; }
+  #s7-credit strong { color: var(--ink); }
+</style>
+</head>
+<body>
+<div id="stage" data-composition-id="explainer-video-self-explainer" data-start="0"
+     data-duration="73.75" data-width="1920" data-height="1080">
+  <div id="background"></div>
+  <div id="grain"></div>
+
+  <section class="scene clip" id="scene-1" data-start="0.1" data-duration="7.375" data-track-index="1">
+    <div class="eyebrow" id="s1-eyebrow">explainer-video-skill / concept</div>
+    <div class="scene-no" id="s1-no">01 / 07</div>
+    <h1 id="s1-question">How does a <strong>question</strong> become a clear, narrated explainer?</h1>
+    <div id="s1-rail">
+      <div id="s1-line"></div>
+      <div class="rail-node" id="rail-1" style="left:0">source</div>
+      <div class="rail-node" id="rail-2" style="left:201px">lock</div>
+      <div class="rail-node" id="rail-3" style="left:402px">voice</div>
+      <div class="rail-node" id="rail-4" style="left:603px">measure</div>
+      <div class="rail-node" id="rail-5" style="left:804px">compose</div>
+      <div class="rail-node" id="rail-6" style="left:1005px">check</div>
+      <div class="rail-node" id="rail-7" style="left:1206px">render</div>
+    </div>
+  </section>
+
+  <section class="scene clip" id="scene-2" data-start="7.475" data-duration="8.825" data-track-index="1">
+    <div class="eyebrow" id="s2-eyebrow">context</div>
+    <div class="scene-no" id="s2-no">02 / 07</div>
+    <div id="s2-heading">
+      <h2 class="title">The goal is understanding.</h2>
+      <p class="subtitle">A calm teaching arc replaces promotional urgency.</p>
+    </div>
+    <div id="s2-compare">
+      <div class="compare-card panel" id="s2-teach">
+        <div class="compare-label">EXPLAINER</div>
+        <div class="compare-main">Teach the process</div>
+        <div class="compare-copy">Question → context → visible steps → recap</div>
+      </div>
+      <div class="compare-card panel" id="s2-sell">
+        <div class="compare-label">NOT THIS</div>
+        <div class="compare-main">Sell the promise</div>
+        <div class="compare-copy">No pain theatrics. No hard call to action.</div>
+      </div>
+    </div>
+    <div id="s2-arc">
+      <div class="arc-chip" id="arc-1">QUESTION</div><div class="arc-arrow" id="arr-1">→</div>
+      <div class="arc-chip" id="arc-2">CONTEXT</div><div class="arc-arrow" id="arr-2">→</div>
+      <div class="arc-chip" id="arc-3">01 · 02 · 03</div><div class="arc-arrow" id="arr-3">→</div>
+      <div class="arc-chip" id="arc-4">MEANING</div><div class="arc-arrow" id="arr-4">→</div>
+      <div class="arc-chip" id="arc-5">RECAP</div>
+    </div>
+  </section>
+
+  <section class="scene clip" id="scene-3" data-start="16.3" data-duration="9.95" data-track-index="1">
+    <div class="scene-no" id="s3-no">03 / 07</div>
+    <div class="step-head">
+      <div class="step-chip" id="s3-chip">01</div>
+      <h2 class="title" id="s3-title">Source, then lock</h2>
+    </div>
+    <div class="step-copy" id="s3-copy">
+      <div class="pill"><span class="dot"></span>CLAIMS TRACE TO AUTHORITY</div>
+      <p class="subtitle">One supported idea per scene. The narration becomes the stable contract for every visual that follows.</p>
+    </div>
+    <div id="s3-board">
+      <div id="s3-sources">
+        <div class="source-card panel" id="source-1"><span>LOCAL SOURCE</span>README.md</div>
+        <div class="source-card panel" id="source-2"><span>LOCAL SOURCE</span>SKILL.md</div>
+        <div class="source-card panel" id="source-3"><span>LOCAL SOURCE</span>docs/method.md</div>
+      </div>
+      <svg id="s3-connect" viewBox="0 0 200 430">
+        <path class="flow-line" id="s3-path-1" d="M10 25 C110 25 80 190 190 190"/>
+        <path class="flow-line" id="s3-path-2" d="M10 190 L190 190"/>
+        <path class="flow-line" id="s3-path-3" d="M10 355 C110 355 80 190 190 190"/>
+      </svg>
+      <div class="panel" id="s3-script">
+        <h3>LOCKED NARRATION</h3>
+        <div class="script-row accent" id="script-row-1"></div>
+        <div class="script-row" id="script-row-2" style="width:90%"></div>
+        <div class="script-row" id="script-row-3" style="width:78%"></div>
+        <div class="script-row accent" id="script-row-4" style="width:58%"></div>
+        <div class="script-row" id="script-row-5" style="width:88%"></div>
+        <div class="script-row" id="script-row-6" style="width:68%"></div>
+        <div class="script-row" id="script-row-7" style="width:82%"></div>
+      </div>
+      <div id="s3-lock">✓ SCRIPT LOCKED</div>
+    </div>
+  </section>
+
+  <section class="scene clip" id="scene-4" data-start="26.25" data-duration="11.225" data-track-index="1">
+    <div class="scene-no" id="s4-no">04 / 07</div>
+    <div class="step-head">
+      <div class="step-chip" id="s4-chip">02</div>
+      <h2 class="title" id="s4-title">Synthesize, then measure</h2>
+    </div>
+    <div class="step-copy" id="s4-copy">
+      <div class="pill"><span class="dot"></span>KOKORO · ONE WAV PER SCENE</div>
+      <p class="subtitle">Measured speech determines starts, cues, and breathing room. Timing is derived evidence.</p>
+    </div>
+    <div class="panel" id="s4-audio">
+      <div id="s4-files">
+        <div class="wav-card" id="wav-1">
+          <div class="wav-name mono">s3_research_lock.wav</div><div class="wav-duration mono">9.550 s</div>
+          <div class="wave" id="wave-1"><i style="height:24px"></i><i style="height:54px"></i><i style="height:72px"></i><i style="height:38px"></i><i style="height:64px"></i><i style="height:30px"></i><i style="height:58px"></i><i style="height:20px"></i></div>
+        </div>
+        <div class="wav-card" id="wav-2">
+          <div class="wav-name mono">s4_synthesize_measure.wav</div><div class="wav-duration mono">10.825 s</div>
+          <div class="wave" id="wave-2"><i style="height:48px"></i><i style="height:70px"></i><i style="height:36px"></i><i style="height:60px"></i><i style="height:28px"></i><i style="height:52px"></i><i style="height:74px"></i><i style="height:40px"></i></div>
+        </div>
+        <div class="wav-card" id="wav-3">
+          <div class="wav-name mono">s5_compose_source.wav</div><div class="wav-duration mono">13.800 s</div>
+          <div class="wave" id="wave-3"><i style="height:30px"></i><i style="height:58px"></i><i style="height:40px"></i><i style="height:72px"></i><i style="height:50px"></i><i style="height:66px"></i><i style="height:34px"></i><i style="height:56px"></i></div>
+        </div>
+      </div>
+      <div id="s4-code" class="mono"><span class="key">sceneStart</span> = narrationStart − 0.400<br><span class="key">nextNarration</span> = narrationStart + wavDuration + 0.400</div>
+      <div id="s4-ruler">
+        <div id="s4-ruler-line"></div>
+        <div class="tick" id="tick-1" style="left:6%"></div><div class="tick-label" id="tick-label-1" style="left:3%">26.650</div>
+        <div class="tick" id="tick-2" style="left:49%"></div><div class="tick-label" id="tick-label-2" style="left:44%">37.875</div>
+        <div class="tick" id="tick-3" style="left:94%"></div><div class="tick-label" id="tick-label-3" style="left:89%">52.075</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene clip" id="scene-5" data-start="37.475" data-duration="14.2" data-track-index="1">
+    <div class="scene-no" id="s5-no">05 / 07</div>
+    <div class="step-head">
+      <div class="step-chip" id="s5-chip">03</div>
+      <h2 class="title" id="s5-title">Compose as source</h2>
+    </div>
+    <div class="step-copy" id="s5-copy">
+      <div class="pill"><span class="dot"></span>ONE READABLE COMPOSITION</div>
+      <p class="subtitle">Structure, design, diagrams, motion, and measured timing stay inspectable in the project.</p>
+    </div>
+    <div id="s5-layers">
+      <div class="layer-card" id="layer-html" style="top:0"><b>HTML</b><span>structure</span></div>
+      <div class="layer-card" id="layer-css" style="top:135px"><b>CSS</b><span>design tokens</span></div>
+      <div class="layer-card" id="layer-svg" style="top:270px"><b>SVG</b><span>diagrams</span></div>
+      <div class="layer-card" id="layer-gsap" style="top:405px"><b>GSAP</b><span>seek-safe motion</span></div>
+      <svg id="s5-connector" viewBox="0 0 250 450">
+        <path class="flow-line" id="s5-path-1" d="M0 15 C120 15 100 225 245 225"/>
+        <path class="flow-line" id="s5-path-2" d="M0 150 C120 150 100 225 245 225"/>
+        <path class="flow-line" id="s5-path-3" d="M0 285 C120 285 100 225 245 225"/>
+        <path class="flow-line" id="s5-path-4" d="M0 420 C120 420 100 225 245 225"/>
+      </svg>
+      <div class="panel" id="s5-browser">
+        <div id="s5-browser-top"><i></i><i></i><i></i></div>
+        <div id="s5-browser-body">
+          <div id="mini-chip">03</div>
+          <div id="mini-title"></div><div id="mini-line"></div>
+          <div id="mini-flow"><span></span><i></i><span></span><i></i><span></span></div>
+        </div>
+      </div>
+      <div id="s5-badges">
+        <div class="pill" id="badge-id"><span class="dot"></span>UNIQUE AUDIO IDs</div>
+        <div class="pill" id="badge-local"><span class="dot"></span>LOCAL ASSETS</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene clip" id="scene-6" data-start="51.675" data-duration="13.125" data-track-index="1">
+    <div class="eyebrow" id="s6-eyebrow">validation + render</div>
+    <div class="scene-no" id="s6-no">06 / 07</div>
+    <div id="s6-title">
+      <h2 class="title">Check what the browser will actually render.</h2>
+      <p class="subtitle" style="margin-top:22px">Cheap gates first. Measured output last.</p>
+    </div>
+    <div id="s6-gates">
+      <div class="gate panel" id="gate-1"><div class="gate-check">✓</div><b>Lint</b><span>static rules</span></div>
+      <div class="gate panel" id="gate-2"><div class="gate-check">✓</div><b>Check</b><span>browser + layout</span></div>
+      <div class="gate panel" id="gate-3"><div class="gate-check">✓</div><b>Snapshot</b><span>every midpoint</span></div>
+      <div class="gate panel" id="gate-4"><div class="gate-check">✓</div><b>Probe</b><span>runtime + audio + frames</span></div>
+    </div>
+    <div id="s6-loop">
+      <svg viewBox="0 0 700 610">
+        <path class="flow-line" id="loop-path-1" d="M350 138 C590 138 630 240 570 285"/>
+        <path class="flow-line" id="loop-path-2" d="M465 345 C440 525 260 525 235 345"/>
+        <path class="flow-line" id="loop-path-3" d="M130 285 C70 240 110 138 350 138"/>
+      </svg>
+      <div class="loop-node panel" id="loop-source">SOURCE</div>
+      <div class="loop-node panel" id="loop-edit">EDIT</div>
+      <div class="loop-node panel" id="loop-render">RERENDER</div>
+    </div>
+    <div id="s6-result">A correction stays a small, reviewable change.</div>
+  </section>
+
+  <section class="scene clip" id="scene-7" data-start="64.8" data-duration="8.95" data-track-index="1">
+    <div class="eyebrow" id="s7-eyebrow">recap</div>
+    <div class="scene-no" id="s7-no">07 / 07</div>
+    <div id="s7-heading">
+      <h2 class="title">Five verbs. One inspectable video.</h2>
+      <p class="subtitle" style="margin-top:22px">The explanation remains editable from first claim to final frame.</p>
+    </div>
+    <div id="s7-steps">
+      <div class="recap-step panel" id="recap-1">SOURCE<small>support claims</small></div>
+      <div class="arc-arrow" id="recap-arr-1">→</div>
+      <div class="recap-step panel" id="recap-2">LOCK<small>fix the words</small></div>
+      <div class="arc-arrow" id="recap-arr-2">→</div>
+      <div class="recap-step panel" id="recap-3">MEASURE<small>read the WAVs</small></div>
+      <div class="arc-arrow" id="recap-arr-3">→</div>
+      <div class="recap-step panel" id="recap-4">COMPOSE<small>build as source</small></div>
+      <div class="arc-arrow" id="recap-arr-4">→</div>
+      <div class="recap-step panel" id="recap-5">VERIFY<small>inspect output</small></div>
+    </div>
+    <div id="s7-credit">Source-code video method credit: <strong>Idan Shimon</strong></div>
+  </section>
+
+  <audio id="audio-s1-question" data-start="0.5" data-duration="6.975" data-track-index="7" data-volume="1" src="assets/audio/s1_question.wav"></audio>
+  <audio id="audio-s2-context" data-start="7.875" data-duration="8.425" data-track-index="7" data-volume="1" src="assets/audio/s2_context.wav"></audio>
+  <audio id="audio-s3-research-lock" data-start="16.7" data-duration="9.55" data-track-index="7" data-volume="1" src="assets/audio/s3_research_lock.wav"></audio>
+  <audio id="audio-s4-synthesize-measure" data-start="26.65" data-duration="10.825" data-track-index="7" data-volume="1" src="assets/audio/s4_synthesize_measure.wav"></audio>
+  <audio id="audio-s5-compose-source" data-start="37.875" data-duration="13.8" data-track-index="7" data-volume="1" src="assets/audio/s5_compose_source.wav"></audio>
+  <audio id="audio-s6-validate-enable" data-start="52.075" data-duration="12.725" data-track-index="7" data-volume="1" src="assets/audio/s6_validate_enable.wav"></audio>
+  <audio id="audio-s7-recap-credit" data-start="65.2" data-duration="7.75" data-track-index="7" data-volume="1" src="assets/audio/s7_recap_credit.wav"></audio>
+
+  <script src="assets/gsap.min.js"></script>
+  <script>
+    const S1 = 0.1, S2 = 7.475, S3 = 16.3, S4 = 26.25;
+    const S5 = 37.475, S6 = 51.675, S7 = 64.8;
+    const tl = gsap.timeline({ paused: true });
+    const enter = (target, at, vars = {}) => tl.fromTo(
+      target,
+      { opacity: 0, y: vars.fromY ?? 24, scale: vars.fromScale ?? 1 },
+      { opacity: 1, y: 0, scale: 1, duration: vars.duration ?? .65, ease: vars.ease ?? "power2.out" },
+      at
+    );
+
+    enter("#s1-eyebrow", S1 + .25, { fromY: 10 });
+    enter("#s1-no", S1 + .25, { fromY: 10 });
+    enter("#s1-question", S1 + .55, { duration: .85 });
+    tl.fromTo("#s1-line", { scaleX: 0 }, { scaleX: 1, duration: 1.5, ease: "power1.inOut" }, S1 + 1.35);
+    tl.fromTo(".rail-node", { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: .4, stagger: .22, ease: "power2.out" }, S1 + 1.15);
+
+    enter("#s2-eyebrow", S2 + .25, { fromY: 10 });
+    enter("#s2-no", S2 + .25, { fromY: 10 });
+    enter("#s2-heading", S2 + .4);
+    enter("#s2-teach", S2 + 1.05, { fromY: 30 });
+    enter("#s2-sell", S2 + 1.35, { fromY: 30 });
+    tl.fromTo("#s2-arc > *", { opacity: 0, x: -12 }, { opacity: 1, x: 0, duration: .4, stagger: .18, ease: "power2.out" }, S2 + 2.4);
+
+    enter("#s3-no", S3 + .2, { fromY: 10 });
+    enter("#s3-chip", S3 + .25, { fromScale: .88, fromY: 0, ease: "back.out(1.3)" });
+    enter("#s3-title", S3 + .42, { fromY: 12 });
+    enter("#s3-copy", S3 + .8);
+    tl.fromTo(".source-card", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: .5, stagger: .25, ease: "power2.out" }, S3 + 1.2);
+    tl.to("#s3-path-1, #s3-path-2, #s3-path-3", { strokeDashoffset: 0, duration: 1.1, stagger: .18, ease: "power1.inOut" }, S3 + 2.0);
+    enter("#s3-script", S3 + 2.3, { fromY: 18 });
+    tl.fromTo(".script-row", { scaleX: 0 }, { scaleX: 1, duration: .35, stagger: .12, ease: "power1.out" }, S3 + 2.8);
+    enter("#s3-lock", S3 + 4.2, { fromScale: .9, fromY: 0, ease: "back.out(1.4)" });
+
+    enter("#s4-no", S4 + .2, { fromY: 10 });
+    enter("#s4-chip", S4 + .25, { fromScale: .88, fromY: 0, ease: "back.out(1.3)" });
+    enter("#s4-title", S4 + .42, { fromY: 12 });
+    enter("#s4-copy", S4 + .8);
+    enter("#s4-audio", S4 + 1.15, { fromY: 22 });
+    tl.fromTo(".wav-card", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .45, stagger: .25, ease: "power2.out" }, S4 + 1.45);
+    tl.fromTo(".wave i", { scaleY: .15 }, { scaleY: 1, duration: .55, stagger: .035, ease: "power1.inOut" }, S4 + 2.1);
+    enter("#s4-code", S4 + 3.1, { fromY: 14 });
+    tl.fromTo("#s4-ruler-line", { scaleX: 0 }, { scaleX: 1, duration: 1.1, ease: "power1.inOut" }, S4 + 4.0);
+    tl.fromTo(".tick, .tick-label", { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: .35, stagger: .14 }, S4 + 4.65);
+
+    enter("#s5-no", S5 + .2, { fromY: 10 });
+    enter("#s5-chip", S5 + .25, { fromScale: .88, fromY: 0, ease: "back.out(1.3)" });
+    enter("#s5-title", S5 + .42, { fromY: 12 });
+    enter("#s5-copy", S5 + .8);
+    tl.fromTo(".layer-card", { opacity: 0, x: -24 }, { opacity: 1, x: 0, duration: .5, stagger: .28, ease: "power2.out" }, S5 + 1.2);
+    tl.to("#s5-path-1, #s5-path-2, #s5-path-3, #s5-path-4", { strokeDashoffset: 0, duration: 1.05, stagger: .2, ease: "power1.inOut" }, S5 + 2.0);
+    enter("#s5-browser", S5 + 2.6, { fromScale: .96, fromY: 12 });
+    enter("#mini-chip", S5 + 3.1, { fromScale: .8, fromY: 0, ease: "back.out(1.3)" });
+    tl.fromTo("#mini-title, #mini-line", { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: .5, stagger: .18, transformOrigin: "left center" }, S5 + 3.4);
+    tl.fromTo("#mini-flow span, #mini-flow i", { opacity: 0, scaleX: .25 }, { opacity: 1, scaleX: 1, duration: .4, stagger: .16, transformOrigin: "left center" }, S5 + 4.0);
+    tl.fromTo("#s5-badges > *", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .5, stagger: .22 }, S5 + 5.0);
+
+    enter("#s6-eyebrow", S6 + .2, { fromY: 10 });
+    enter("#s6-no", S6 + .2, { fromY: 10 });
+    enter("#s6-title", S6 + .45);
+    tl.fromTo(".gate", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .5, stagger: .32, ease: "power2.out" }, S6 + 1.2);
+    tl.fromTo(".gate-check", { scale: .6 }, { scale: 1, duration: .45, stagger: .32, ease: "back.out(1.5)" }, S6 + 1.35);
+    enter("#loop-source", S6 + 2.1, { fromScale: .9, fromY: 0 });
+    enter("#loop-render", S6 + 2.55, { fromScale: .9, fromY: 0 });
+    enter("#loop-edit", S6 + 3.0, { fromScale: .9, fromY: 0 });
+    tl.to("#loop-path-1, #loop-path-2, #loop-path-3", { strokeDashoffset: 0, duration: 1.0, stagger: .32, ease: "power1.inOut" }, S6 + 2.2);
+    enter("#s6-result", S6 + 4.35, { fromY: 12 });
+
+    enter("#s7-eyebrow", S7 + .2, { fromY: 10 });
+    enter("#s7-no", S7 + .2, { fromY: 10 });
+    enter("#s7-heading", S7 + .45);
+    tl.fromTo("#s7-steps > *", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .45, stagger: .16, ease: "power2.out" }, S7 + 1.25);
+    enter("#s7-credit", S7 + 3.2, { fromY: 12 });
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["explainer-video-self-explainer"] = tl;
+  </script>
+</div>
+</body>
+</html>

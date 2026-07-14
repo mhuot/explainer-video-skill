@@ -1,0 +1,929 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>explainer-video-skill — promotional video</title>
+<style>
+  :root {
+    --paper: #f4f0e8;
+    --paper-2: #e9e2d7;
+    --ink: #151525;
+    --ink-soft: #48485c;
+    --cobalt: #3048e8;
+    --cobalt-deep: #2033b6;
+    --vermilion: #e93f28;
+    --mint: #8de3bd;
+    --white: #fffdf8;
+    --line: #c8c0b5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { margin: 0; }
+  #stage {
+    position: relative;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    color: var(--ink);
+    font-family: Inter, sans-serif;
+  }
+  .fill { position: absolute; inset: 0; }
+  #base-bg { background: var(--paper); }
+  .scene { position: absolute; inset: 0; overflow: hidden; }
+  .paper-bg { background: var(--paper); }
+  .blue-bg { background: var(--cobalt); }
+  .ink-bg { background: var(--ink); }
+  .grid-bg {
+    background:
+      linear-gradient(90deg, rgba(21,21,37,.055) 1px, transparent 1px),
+      linear-gradient(rgba(21,21,37,.055) 1px, transparent 1px),
+      var(--paper);
+    background-size: 80px 80px;
+  }
+  .kicker {
+    position: absolute;
+    left: 100px;
+    top: 72px;
+    display: block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    opacity: 0;
+  }
+  .kicker.light { color: #d9defd; }
+  .eyebrow {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 2px;
+  }
+  .tag {
+    display: inline-block;
+    padding: 12px 18px;
+    border: 2px solid currentColor;
+    border-radius: 999px;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+
+  /* Scene 1 */
+  #s1-title {
+    position: absolute;
+    left: 100px;
+    top: 150px;
+    width: 1120px;
+    display: block;
+    font-size: 112px;
+    line-height: .93;
+    letter-spacing: -6px;
+    font-weight: 900;
+    opacity: 0;
+  }
+  #s1-title span { color: var(--vermilion); }
+  .scatter-card {
+    position: absolute;
+    width: 350px;
+    height: 128px;
+    display: block;
+    padding: 29px 30px;
+    border: 3px solid var(--ink);
+    background: var(--white);
+    box-shadow: 10px 10px 0 var(--ink);
+    opacity: 0;
+  }
+  .scatter-card b {
+    display: block;
+    font-size: 28px;
+    line-height: 1;
+  }
+  .scatter-card small {
+    display: block;
+    margin-top: 14px;
+    color: var(--ink-soft);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 17px;
+  }
+  #s1-card-prompt { left: 1170px; top: 150px; }
+  #s1-card-voice { left: 1390px; top: 340px; }
+  #s1-card-editor { left: 1110px; top: 545px; }
+  #s1-card-timing { left: 1440px; top: 735px; }
+  #s1-route {
+    position: absolute;
+    left: 1050px;
+    top: 250px;
+    width: 760px;
+    height: 640px;
+    opacity: 0;
+  }
+  .route-line {
+    fill: none;
+    stroke: var(--vermilion);
+    stroke-width: 5;
+    stroke-dasharray: 12 14;
+  }
+  #s1-guess {
+    position: absolute;
+    left: 100px;
+    bottom: 86px;
+    width: 880px;
+    height: 126px;
+    display: block;
+    padding: 27px 34px;
+    background: var(--vermilion);
+    color: var(--white);
+    font-size: 54px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    opacity: 0;
+  }
+
+  /* Scene 2 */
+  #s2-wordmark {
+    position: absolute;
+    left: 100px;
+    top: 126px;
+    width: 1550px;
+    display: block;
+    color: var(--white);
+    font-size: 120px;
+    font-weight: 900;
+    letter-spacing: -7px;
+    opacity: 0;
+  }
+  #s2-wordmark span { color: var(--mint); }
+  #s2-sub {
+    position: absolute;
+    left: 110px;
+    top: 300px;
+    display: block;
+    color: #e4e7ff;
+    font-size: 34px;
+    font-weight: 500;
+    opacity: 0;
+  }
+  #s2-rail {
+    position: absolute;
+    left: 115px;
+    top: 642px;
+    width: 1690px;
+    height: 8px;
+    display: block;
+    background: rgba(255,255,255,.24);
+    opacity: 0;
+  }
+  #s2-progress {
+    position: absolute;
+    left: 115px;
+    top: 642px;
+    width: 1690px;
+    height: 8px;
+    display: block;
+    background: var(--mint);
+    transform-origin: left center;
+    opacity: 0;
+  }
+  .pipeline-chip {
+    position: absolute;
+    top: 566px;
+    width: 184px;
+    height: 160px;
+    display: block;
+    padding: 26px 18px;
+    border: 2px solid rgba(255,255,255,.46);
+    background: var(--cobalt-deep);
+    color: var(--white);
+    text-align: center;
+    opacity: 0;
+  }
+  .pipeline-chip b {
+    display: block;
+    color: var(--mint);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 20px;
+    margin-bottom: 28px;
+  }
+  .pipeline-chip span { display: block; font-size: 19px; font-weight: 800; }
+  #s2-p1 { left: 100px; } #s2-p2 { left: 320px; }
+  #s2-p3 { left: 540px; } #s2-p4 { left: 760px; }
+  #s2-p5 { left: 980px; } #s2-p6 { left: 1200px; }
+  #s2-p7 { left: 1420px; } #s2-p8 { left: 1640px; }
+  #s2-local {
+    position: absolute;
+    left: 100px;
+    bottom: 88px;
+    display: block;
+    color: var(--white);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 28px;
+    font-weight: 700;
+    opacity: 0;
+  }
+  #s2-local b { color: var(--mint); }
+
+  /* Shared scene headings */
+  .scene-title {
+    position: absolute;
+    left: 100px;
+    top: 114px;
+    display: block;
+    font-size: 76px;
+    font-weight: 900;
+    letter-spacing: -4px;
+    opacity: 0;
+  }
+  .scene-title em { color: var(--cobalt); font-style: normal; }
+
+  /* Scene 3 */
+  #s3-steps {
+    position: absolute;
+    left: 100px;
+    top: 315px;
+    width: 280px;
+    display: block;
+  }
+  .step-chip {
+    width: 330px;
+    height: 116px;
+    display: block;
+    margin-bottom: 24px;
+    padding: 30px 30px;
+    border: 3px solid var(--ink);
+    background: var(--white);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 38px;
+    font-weight: 800;
+    white-space: nowrap;
+    opacity: 0;
+  }
+  .step-chip.active { background: var(--cobalt); color: var(--white); }
+  #s3-diagram {
+    position: absolute;
+    left: 470px;
+    top: 315px;
+    width: 1340px;
+    height: 470px;
+    opacity: 0;
+  }
+  .diagram-node { fill: var(--white); stroke: var(--ink); stroke-width: 3; }
+  .diagram-node.hot { fill: var(--mint); stroke: var(--ink); }
+  .diagram-edge {
+    fill: none;
+    stroke: var(--cobalt);
+    stroke-width: 8;
+    stroke-dasharray: 900;
+    stroke-dashoffset: 900;
+  }
+  .diagram-label {
+    fill: var(--ink);
+    font-family: Inter, sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    text-anchor: middle;
+  }
+  .diagram-small {
+    fill: var(--ink-soft);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 18px;
+    text-anchor: middle;
+  }
+  #s3-proof {
+    position: absolute;
+    left: 470px;
+    bottom: 105px;
+    width: 1340px;
+    height: 105px;
+    display: block;
+    padding: 28px 36px;
+    background: var(--ink);
+    color: var(--white);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 34px;
+    font-weight: 800;
+    opacity: 0;
+  }
+  #s3-proof span { color: var(--mint); }
+
+  /* Scene 4 */
+  #s4-bg { background: #ececff; }
+  #s4-ui {
+    position: absolute;
+    left: 100px;
+    top: 260px;
+    width: 1080px;
+    height: 690px;
+    display: block;
+    border: 4px solid var(--ink);
+    background: var(--white);
+    box-shadow: 16px 16px 0 var(--ink);
+    opacity: 0;
+  }
+  #s4-ui-bar {
+    height: 76px;
+    display: block;
+    padding: 24px 28px;
+    border-bottom: 3px solid var(--ink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 20px;
+    font-weight: 800;
+  }
+  #s4-ui-bar span { float: right; color: var(--cobalt); }
+  #s4-stat {
+    position: absolute;
+    left: 32px;
+    top: 110px;
+    width: 282px;
+    height: 180px;
+    display: block;
+    padding: 24px;
+    background: var(--cobalt);
+    color: var(--white);
+  }
+  #s4-stat small { display: block; font-size: 18px; font-weight: 700; }
+  #s4-stat b { display: block; margin-top: 18px; font-size: 76px; }
+  #s4-chart {
+    position: absolute;
+    left: 345px;
+    top: 110px;
+    width: 690px;
+    height: 180px;
+    display: flex;
+    align-items: end;
+    gap: 22px;
+    padding: 28px 32px;
+    border: 2px solid var(--line);
+    background: #f7f5f0;
+  }
+  .chart-bar {
+    width: 78px;
+    display: block;
+    background: var(--cobalt);
+    transform-origin: center bottom;
+  }
+  .chart-bar.alt { background: var(--mint); }
+  #s4-b1 { height: 48px; } #s4-b2 { height: 76px; }
+  #s4-b3 { height: 104px; } #s4-b4 { height: 86px; }
+  #s4-b5 { height: 122px; } #s4-b6 { height: 108px; }
+  .ui-row {
+    position: absolute;
+    left: 32px;
+    width: 1003px;
+    height: 82px;
+    display: grid;
+    grid-template-columns: 1.2fr .7fr .7fr;
+    align-items: center;
+    padding: 0 26px;
+    border: 2px solid var(--line);
+    background: var(--white);
+    font-size: 21px;
+    opacity: 0;
+  }
+  .ui-row b { color: var(--cobalt); }
+  #s4-row1 { top: 330px; } #s4-row2 { top: 428px; }
+  #s4-row3 { top: 526px; }
+  #s4-highlight {
+    position: absolute;
+    left: 18px;
+    top: 316px;
+    width: 1031px;
+    height: 110px;
+    display: block;
+    border: 7px solid var(--vermilion);
+    opacity: 0;
+  }
+  #s4-callout {
+    position: absolute;
+    right: 96px;
+    top: 314px;
+    width: 550px;
+    height: 442px;
+    display: block;
+    padding: 48px;
+    background: var(--ink);
+    color: var(--white);
+    opacity: 0;
+  }
+  #s4-callout .tag { color: var(--mint); }
+  #s4-callout h3 {
+    margin-top: 36px;
+    font-size: 62px;
+    line-height: 1;
+    letter-spacing: -3px;
+  }
+  #s4-callout p {
+    margin-top: 32px;
+    color: #d7d7e1;
+    font-size: 26px;
+    line-height: 1.35;
+  }
+
+  /* Scene 5 */
+  #s5-title { color: var(--white); }
+  #s5-title em { color: var(--mint); }
+  #s5-sub {
+    position: absolute;
+    left: 104px;
+    top: 214px;
+    display: block;
+    color: #bfc0d1;
+    font-size: 28px;
+    opacity: 0;
+  }
+  #s5-wave {
+    position: absolute;
+    left: 100px;
+    top: 330px;
+    width: 1720px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 38px;
+    border-top: 2px solid #4f5063;
+    border-bottom: 2px solid #4f5063;
+  }
+  .wave-bar {
+    width: 30px;
+    display: block;
+    background: var(--mint);
+    transform-origin: center center;
+    opacity: 0;
+  }
+  .wave-bar:nth-child(3n) { background: var(--cobalt); }
+  .timing-row {
+    position: absolute;
+    left: 100px;
+    width: 1720px;
+    height: 70px;
+    display: grid;
+    grid-template-columns: 260px 1fr 190px;
+    align-items: center;
+    padding: 0 26px;
+    border: 2px solid #55566a;
+    color: var(--white);
+    opacity: 0;
+  }
+  .timing-row b {
+    color: var(--mint);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 22px;
+  }
+  .timing-row span { color: #d4d4df; font-size: 22px; }
+  .timing-row code {
+    color: #b9c2ff;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 19px;
+    text-align: right;
+  }
+  #s5-row-scenes { top: 610px; }
+  #s5-row-audio { top: 696px; }
+  #s5-row-gsap { top: 782px; }
+  #s5-cursor {
+    position: absolute;
+    left: 1270px;
+    top: 298px;
+    width: 4px;
+    height: 570px;
+    display: block;
+    background: var(--vermilion);
+    opacity: 0;
+  }
+  #s5-tools {
+    position: absolute;
+    left: 100px;
+    bottom: 90px;
+    display: flex;
+    gap: 16px;
+    opacity: 0;
+  }
+  #s5-tools .tag { color: #dfe2ff; }
+
+  /* Scene 6 */
+  #s6-header {
+    position: absolute;
+    left: 100px;
+    top: 92px;
+    display: block;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    opacity: 0;
+  }
+  #s6-title {
+    position: absolute;
+    left: 100px;
+    top: 145px;
+    width: 1600px;
+    display: block;
+    font-size: 82px;
+    font-weight: 900;
+    letter-spacing: -4px;
+    opacity: 0;
+  }
+  #s6-title span { color: var(--vermilion); }
+  #s6-table {
+    position: absolute;
+    left: 100px;
+    top: 330px;
+    width: 1720px;
+    display: block;
+    border: 3px solid var(--ink);
+    background: var(--white);
+    opacity: 0;
+  }
+  .compare-row {
+    height: 112px;
+    display: grid;
+    grid-template-columns: 1.2fr .8fr .8fr;
+    align-items: center;
+    border-bottom: 2px solid var(--ink);
+  }
+  .compare-row:last-child { border-bottom: 0; }
+  .compare-row > div {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left: 2px solid var(--ink);
+    font-size: 27px;
+    font-weight: 800;
+  }
+  .compare-row > div:first-child {
+    justify-content: flex-start;
+    padding-left: 34px;
+    border-left: 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 20px;
+    letter-spacing: 1px;
+  }
+  .compare-row.head { height: 88px; background: var(--ink); color: var(--white); }
+  .compare-row.head > div { border-color: #606073; font-size: 22px; }
+  .compare-row .win { background: var(--mint); color: var(--ink); }
+  .compare-row .concede { background: #ffd7cc; color: var(--ink); }
+  #s6-setup {
+    position: absolute;
+    left: 100px;
+    bottom: 74px;
+    width: 1720px;
+    height: 105px;
+    display: block;
+    padding: 30px 36px;
+    background: var(--vermilion);
+    color: var(--white);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 28px;
+    font-weight: 800;
+    opacity: 0;
+  }
+
+  /* Scene 7 */
+  #s7-mark {
+    position: absolute;
+    left: 100px;
+    top: 96px;
+    display: block;
+    color: var(--cobalt);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    opacity: 0;
+  }
+  #s7-title {
+    position: absolute;
+    left: 100px;
+    top: 160px;
+    width: 1650px;
+    display: block;
+    font-size: 108px;
+    line-height: .96;
+    font-weight: 900;
+    letter-spacing: -7px;
+    opacity: 0;
+  }
+  #s7-title span { color: var(--cobalt); }
+  #s7-shapes {
+    position: absolute;
+    left: 105px;
+    top: 430px;
+    display: flex;
+    gap: 22px;
+  }
+  .shape-card {
+    width: 340px;
+    height: 132px;
+    display: block;
+    padding: 28px 30px;
+    border: 3px solid var(--ink);
+    background: var(--white);
+    opacity: 0;
+  }
+  .shape-card b { display: block; font-size: 28px; }
+  .shape-card small {
+    display: block;
+    margin-top: 12px;
+    color: var(--ink-soft);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 16px;
+  }
+  #s7-beats {
+    position: absolute;
+    left: 100px;
+    top: 630px;
+    display: flex;
+    gap: 18px;
+  }
+  .cta-beat {
+    width: 300px;
+    height: 105px;
+    display: block;
+    padding: 34px 20px;
+    background: var(--ink);
+    color: var(--white);
+    text-align: center;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 25px;
+    font-weight: 800;
+    opacity: 0;
+  }
+  .cta-beat.hot { background: var(--cobalt); }
+  #s7-credit {
+    position: absolute;
+    left: 100px;
+    bottom: 78px;
+    display: block;
+    color: var(--ink-soft);
+    font-size: 23px;
+    opacity: 0;
+  }
+  #s7-credit b { color: var(--ink); }
+  #s7-final-fade { background: var(--ink); opacity: 0; }
+</style>
+</head>
+<body>
+<div id="stage" data-composition-id="explainer-video-promo" data-start="0"
+     data-duration="59.8" data-width="1920" data-height="1080">
+  <div id="base-bg" class="fill"></div>
+
+  <section id="scene-1" class="scene clip" data-start="0" data-duration="7"
+           data-track-index="1" data-layout-allow-occlusion
+           data-layout-allow-overlap>
+    <div id="s1-bg" class="fill grid-bg"></div>
+    <div id="s1-kicker" class="kicker">THE DEFAULT WORKFLOW</div>
+    <h1 id="s1-title">GENERIC AI<br>VIDEO <span>SCATTERS</span></h1>
+    <svg id="s1-route" viewBox="0 0 760 640" aria-hidden="true">
+      <polyline class="route-line" points="35,30 590,30 590,160 180,160 180,350 660,350 660,540 250,540"/>
+    </svg>
+    <div id="s1-card-prompt" class="scatter-card"><b>PROMPTS</b><small>draft_07_final</small></div>
+    <div id="s1-card-voice" class="scatter-card"><b>VOICE</b><small>take_04.wav</small></div>
+    <div id="s1-card-editor" class="scatter-card"><b>EDITOR</b><small>timeline_v9</small></div>
+    <div id="s1-card-timing" class="scatter-card"><b>TIMING</b><small>nudge + guess</small></div>
+    <div id="s1-guess">AND TIMING? ADJUSTED BY GUESSWORK.</div>
+  </section>
+
+  <section id="scene-2" class="scene clip" data-start="7" data-duration="8.3"
+           data-track-index="1" data-layout-allow-occlusion
+           data-layout-allow-overlap>
+    <div id="s2-bg" class="fill blue-bg"></div>
+    <div id="s2-kicker" class="kicker light">ONE READABLE LOCAL PIPELINE</div>
+    <h2 id="s2-wordmark">explainer-<span>video</span></h2>
+    <p id="s2-sub">From source to explanation—measured, validated, rendered.</p>
+    <div id="s2-rail"></div>
+    <div id="s2-progress"></div>
+    <div id="s2-p1" class="pipeline-chip"><b>01</b><span>RESEARCH</span></div>
+    <div id="s2-p2" class="pipeline-chip"><b>02</b><span>LOCK</span></div>
+    <div id="s2-p3" class="pipeline-chip"><b>03</b><span>SYNTH</span></div>
+    <div id="s2-p4" class="pipeline-chip"><b>04</b><span>MEASURE</span></div>
+    <div id="s2-p5" class="pipeline-chip"><b>05</b><span>ANIMATE</span></div>
+    <div id="s2-p6" class="pipeline-chip"><b>06</b><span>VALIDATE</span></div>
+    <div id="s2-p7" class="pipeline-chip"><b>07</b><span>RENDER</span></div>
+    <div id="s2-p8" class="pipeline-chip"><b>08</b><span>REVIEW</span></div>
+    <div id="s2-local"><b>LOCAL</b> / AUDITABLE / SOURCE-CONTROLLED</div>
+  </section>
+
+  <section id="scene-3" class="scene clip" data-start="15.3" data-duration="6.825"
+           data-track-index="1" data-layout-allow-occlusion
+           data-layout-allow-overlap>
+    <div id="s3-bg" class="fill paper-bg"></div>
+    <div id="s3-kicker" class="kicker">USE CASE 01</div>
+    <h2 id="s3-title" class="scene-title">TEACH THE <em>SYSTEM</em></h2>
+    <div id="s3-steps">
+      <div id="s3-step1" class="step-chip active">01 / INPUT</div>
+      <div id="s3-step2" class="step-chip">02 / LOGIC</div>
+      <div id="s3-step3" class="step-chip">03 / MEANING</div>
+    </div>
+    <svg id="s3-diagram" viewBox="0 0 1340 470" aria-label="Concept explainer flow">
+      <rect class="diagram-node" x="25" y="135" width="320" height="180" rx="18"/>
+      <rect class="diagram-node hot" x="510" y="135" width="320" height="180" rx="18"/>
+      <rect class="diagram-node" x="995" y="135" width="320" height="180" rx="18"/>
+      <polyline id="s3-edge1" class="diagram-edge" points="345,225 510,225"/>
+      <polyline id="s3-edge2" class="diagram-edge" points="830,225 995,225"/>
+      <text class="diagram-label" x="185" y="215">SOURCE</text>
+      <text class="diagram-small" x="185" y="252">what comes in</text>
+      <text class="diagram-label" x="670" y="215">PROCESS</text>
+      <text class="diagram-small" x="670" y="252">how it works</text>
+      <text class="diagram-label" x="1155" y="215">OUTCOME</text>
+      <text class="diagram-small" x="1155" y="252">what it means</text>
+    </svg>
+    <div id="s3-proof">NUMBERED STEPS + NARRATION-TIMED DIAGRAMS / <span>ONE IDEA EACH SCENE</span></div>
+  </section>
+
+  <section id="scene-4" class="scene clip" data-start="22.125" data-duration="7.25"
+           data-track-index="1" data-layout-allow-occlusion
+           data-layout-allow-overlap>
+    <div id="s4-bg" class="fill"></div>
+    <div id="s4-kicker" class="kicker">USE CASE 02</div>
+    <h2 id="s4-title" class="scene-title">SHOW THE <em>PRODUCT</em></h2>
+    <div id="s4-ui">
+      <div id="s4-ui-bar">SOLUTION PREVIEW <span>LIVE HTML MOCKUP</span></div>
+      <div id="s4-stat"><small>SIGNALS REVIEWED</small><b>07</b></div>
+      <div id="s4-chart">
+        <div id="s4-b1" class="chart-bar"></div><div id="s4-b2" class="chart-bar alt"></div>
+        <div id="s4-b3" class="chart-bar"></div><div id="s4-b4" class="chart-bar alt"></div>
+        <div id="s4-b5" class="chart-bar"></div><div id="s4-b6" class="chart-bar alt"></div>
+      </div>
+      <div id="s4-row1" class="ui-row"><span>Pipeline health</span><b>READY</b><span>12:42</span></div>
+      <div id="s4-row2" class="ui-row"><span>Timing sync</span><b>LOCKED</b><span>3 surfaces</span></div>
+      <div id="s4-row3" class="ui-row"><span>Visual review</span><b>PASS</b><span>7 scenes</span></div>
+      <div id="s4-highlight"></div>
+    </div>
+    <div id="s4-callout">
+      <span class="tag">SOLUTION PREVIEW</span>
+      <h3>GUIDE THE EYE.</h3>
+      <p>Animate stats, charts, tables, and highlights—never just drop in a static screenshot.</p>
+    </div>
+  </section>
+
+  <section id="scene-5" class="scene clip" data-start="29.375" data-duration="10.275"
+           data-track-index="1" data-layout-allow-occlusion
+           data-layout-allow-overlap>
+    <div id="s5-bg" class="fill ink-bg"></div>
+    <div id="s5-kicker" class="kicker light">THE LOAD-BEARING DIFFERENCE</div>
+    <h2 id="s5-title" class="scene-title">TIMING IS <em>MEASURED</em></h2>
+    <p id="s5-sub">Per-scene narration becomes the source of timeline truth.</p>
+    <div id="s5-wave">
+      <div class="wave-bar" style="height:54px"></div><div class="wave-bar" style="height:92px"></div>
+      <div class="wave-bar" style="height:128px"></div><div class="wave-bar" style="height:68px"></div>
+      <div class="wave-bar" style="height:150px"></div><div class="wave-bar" style="height:112px"></div>
+      <div class="wave-bar" style="height:78px"></div><div class="wave-bar" style="height:170px"></div>
+      <div class="wave-bar" style="height:132px"></div><div class="wave-bar" style="height:86px"></div>
+      <div class="wave-bar" style="height:146px"></div><div class="wave-bar" style="height:64px"></div>
+      <div class="wave-bar" style="height:116px"></div><div class="wave-bar" style="height:178px"></div>
+      <div class="wave-bar" style="height:98px"></div><div class="wave-bar" style="height:136px"></div>
+      <div class="wave-bar" style="height:70px"></div><div class="wave-bar" style="height:156px"></div>
+      <div class="wave-bar" style="height:108px"></div><div class="wave-bar" style="height:82px"></div>
+      <div class="wave-bar" style="height:164px"></div><div class="wave-bar" style="height:124px"></div>
+      <div class="wave-bar" style="height:58px"></div><div class="wave-bar" style="height:142px"></div>
+      <div class="wave-bar" style="height:104px"></div><div class="wave-bar" style="height:74px"></div>
+      <div class="wave-bar" style="height:152px"></div><div class="wave-bar" style="height:94px"></div>
+      <div class="wave-bar" style="height:122px"></div><div class="wave-bar" style="height:62px"></div>
+      <div class="wave-bar" style="height:138px"></div><div class="wave-bar" style="height:84px"></div>
+      <div class="wave-bar" style="height:160px"></div><div class="wave-bar" style="height:108px"></div>
+      <div class="wave-bar" style="height:72px"></div><div class="wave-bar" style="height:148px"></div>
+      <div class="wave-bar" style="height:118px"></div><div class="wave-bar" style="height:88px"></div>
+      <div class="wave-bar" style="height:134px"></div><div class="wave-bar" style="height:66px"></div>
+    </div>
+    <div id="s5-row-scenes" class="timing-row"><b>SCENES</b><span>data-start / data-duration</span><code>29.375s</code></div>
+    <div id="s5-row-audio" class="timing-row"><b>AUDIO</b><span>measured narration start</span><code>29.625s</code></div>
+    <div id="s5-row-gsap" class="timing-row"><b>GSAP</b><span>const S5 timeline anchor</span><code>29.375s</code></div>
+    <div id="s5-cursor"></div>
+    <div id="s5-tools">
+      <span class="tag">KOKORO</span><span class="tag">HYPERFRAMES</span><span class="tag">FFMPEG</span>
+    </div>
+  </section>
+
+  <section id="scene-6" class="scene clip" data-start="39.65" data-duration="10.15"
+           data-track-index="1" data-layout-allow-occlusion
+           data-layout-allow-overlap>
+    <div id="s6-bg" class="fill grid-bg"></div>
+    <div id="s6-header">HONEST COMPARISON</div>
+    <h2 id="s6-title">NOT ONE-CLICK. <span>BUILT TO BE AUDITABLE.</span></h2>
+    <div id="s6-table">
+      <div class="compare-row head"><div>TRADE-OFF</div><div>HOSTED TEMPLATE</div><div>EXPLAINER-VIDEO</div></div>
+      <div class="compare-row"><div>ONE-CLICK START</div><div class="concede">YES</div><div>NO</div></div>
+      <div class="compare-row"><div>AUDITABLE SOURCE</div><div>VARIES</div><div class="win">YES</div></div>
+      <div class="compare-row"><div>LOCAL AFTER CACHES</div><div>USUALLY NO</div><div class="win">YES</div></div>
+    </div>
+    <div id="s6-setup">REAL CONCESSION / SETUP TAKES NODE + PYTHON + VIDEO TOOLING</div>
+  </section>
+
+  <section id="scene-7" class="scene clip" data-start="49.8" data-duration="10"
+           data-track-index="1" data-layout-allow-occlusion
+           data-layout-allow-overlap>
+    <div id="s7-bg" class="fill paper-bg"></div>
+    <div id="s7-mark">EXPLAINER-VIDEO-SKILL</div>
+    <h2 id="s7-title">MAKE THE<br><span>EXPLANATION</span> MOVE.</h2>
+    <div id="s7-shapes">
+      <div id="s7-concept" class="shape-card"><b>CONCEPT</b><small>teach how it works</small></div>
+      <div id="s7-preview" class="shape-card"><b>PREVIEW</b><small>show the solution</small></div>
+    </div>
+    <div id="s7-beats">
+      <div id="s7-lock" class="cta-beat">LOCK</div>
+      <div id="s7-measure" class="cta-beat">MEASURE</div>
+      <div id="s7-render" class="cta-beat">RENDER</div>
+      <div id="s7-explain" class="cta-beat hot">EXPLAIN</div>
+    </div>
+    <div id="s7-credit">Method demonstrated by <b>Idan Shimon</b> / Explore explainer-video-skill</div>
+    <div id="s7-final-fade" class="fill"></div>
+  </section>
+
+  <audio id="audio-s1-fragmented" data-start="0.5" data-duration="6.45"
+         data-track-index="7" data-volume="1"
+         src="assets/audio/s1_fragmented.wav"></audio>
+  <audio id="audio-s2-reveal" data-start="7.25" data-duration="8"
+         data-track-index="7" data-volume="1"
+         src="assets/audio/s2_reveal.wav"></audio>
+  <audio id="audio-s3-concept" data-start="15.55" data-duration="6.525"
+         data-track-index="7" data-volume="1"
+         src="assets/audio/s3_concept.wav"></audio>
+  <audio id="audio-s4-preview" data-start="22.375" data-duration="6.95"
+         data-track-index="7" data-volume="1"
+         src="assets/audio/s4_preview.wav"></audio>
+  <audio id="audio-s5-measured" data-start="29.625" data-duration="9.975"
+         data-track-index="7" data-volume="1"
+         src="assets/audio/s5_measured.wav"></audio>
+  <audio id="audio-s6-tradeoff" data-start="39.9" data-duration="9.85"
+         data-track-index="7" data-volume="1"
+         src="assets/audio/s6_tradeoff.wav"></audio>
+  <audio id="audio-s7-cta" data-start="50.05" data-duration="8.925"
+         data-track-index="7" data-volume="1"
+         src="assets/audio/s7_cta.wav"></audio>
+  <audio id="audio-music-bed" data-start="0" data-duration="59.8"
+         data-track-index="8" data-volume="0.12"
+         src="assets/audio/music-bed.wav"></audio>
+
+  <script src="assets/gsap.min.js"></script>
+  <script>
+    const S1 = 0;
+    const S2 = 7;
+    const S3 = 15.3;
+    const S4 = 22.125;
+    const S5 = 29.375;
+    const S6 = 39.65;
+    const S7 = 49.8;
+
+    const tl = gsap.timeline({ paused: true });
+
+    tl.fromTo("#s1-kicker", { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: .45, ease: "power2.out" }, S1 + .22);
+    tl.fromTo("#s1-title", { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: .65, ease: "power3.out" }, S1 + .42);
+    tl.fromTo("#s1-route", { opacity: 0 }, { opacity: 1, duration: .45, ease: "none" }, S1 + 1.0);
+    tl.fromTo("#s1-card-prompt", { opacity: 0, x: 80 }, { opacity: 1, x: 0, duration: .48, ease: "power2.out" }, S1 + 1.0);
+    tl.fromTo("#s1-card-voice", { opacity: 0, x: -70 }, { opacity: 1, x: 0, duration: .48, ease: "power2.out" }, S1 + 1.65);
+    tl.fromTo("#s1-card-editor", { opacity: 0, x: 75 }, { opacity: 1, x: 0, duration: .48, ease: "power2.out" }, S1 + 2.3);
+    tl.fromTo("#s1-card-timing", { opacity: 0, x: -65 }, { opacity: 1, x: 0, duration: .48, ease: "power2.out" }, S1 + 2.95);
+    tl.fromTo("#s1-guess", { opacity: 0, y: 32 }, { opacity: 1, y: 0, duration: .58, ease: "power3.out" }, S1 + 4.5);
+
+    tl.fromTo("#s2-kicker", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: .4, ease: "power2.out" }, S2 + .18);
+    tl.fromTo("#s2-wordmark", { opacity: 0, x: -70 }, { opacity: 1, x: 0, duration: .68, ease: "power3.out" }, S2 + .38);
+    tl.fromTo("#s2-sub", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .45, ease: "power2.out" }, S2 + .92);
+    tl.fromTo("#s2-rail", { opacity: 0 }, { opacity: 1, duration: .4, ease: "none" }, S2 + 1.35);
+    tl.fromTo("#s2-progress", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 4.7, ease: "power1.inOut" }, S2 + 1.45);
+    tl.fromTo(".pipeline-chip", { opacity: 0, y: 34 }, { opacity: 1, y: 0, duration: .38, stagger: .32, ease: "power2.out" }, S2 + 1.4);
+    tl.fromTo("#s2-local", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .45, ease: "power2.out" }, S2 + 6.0);
+
+    tl.fromTo("#s3-kicker", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: .4, ease: "power2.out" }, S3 + .18);
+    tl.fromTo("#s3-title", { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: .58, ease: "power3.out" }, S3 + .3);
+    tl.fromTo(".step-chip", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: .42, stagger: .46, ease: "power2.out" }, S3 + .8);
+    tl.fromTo("#s3-diagram", { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: .48, ease: "power2.out" }, S3 + 1.0);
+    tl.to("#s3-edge1", { strokeDashoffset: 0, duration: .85, ease: "power1.inOut" }, S3 + 2.0);
+    tl.to("#s3-edge2", { strokeDashoffset: 0, duration: .85, ease: "power1.inOut" }, S3 + 3.05);
+    tl.fromTo("#s3-proof", { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: .5, ease: "power2.out" }, S3 + 4.35);
+
+    tl.fromTo("#s4-kicker", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: .4, ease: "power2.out" }, S4 + .18);
+    tl.fromTo("#s4-title", { opacity: 0, x: -50 }, { opacity: 1, x: 0, duration: .58, ease: "power3.out" }, S4 + .3);
+    tl.fromTo("#s4-ui", { opacity: 0, x: -65 }, { opacity: 1, x: 0, duration: .65, ease: "power3.out" }, S4 + .78);
+    tl.fromTo(".chart-bar", { scaleY: 0 }, { scaleY: 1, duration: .75, stagger: .1, ease: "power2.out" }, S4 + 1.45);
+    tl.fromTo(".ui-row", { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: .38, stagger: .36, ease: "power2.out" }, S4 + 1.8);
+    tl.fromTo("#s4-callout", { opacity: 0, x: 60 }, { opacity: 1, x: 0, duration: .6, ease: "power3.out" }, S4 + 2.3);
+    tl.fromTo("#s4-highlight", { opacity: 0, scale: .97 }, { opacity: 1, scale: 1, duration: .45, ease: "power2.out" }, S4 + 4.1);
+
+    tl.fromTo("#s5-kicker", { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: .4, ease: "power2.out" }, S5 + .18);
+    tl.fromTo("#s5-title", { opacity: 0, x: -55 }, { opacity: 1, x: 0, duration: .62, ease: "power3.out" }, S5 + .34);
+    tl.fromTo("#s5-sub", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .45, ease: "power2.out" }, S5 + .86);
+    tl.fromTo(".wave-bar", { opacity: 0, scaleY: .08 }, { opacity: 1, scaleY: 1, duration: .35, stagger: .055, ease: "power2.out" }, S5 + 1.2);
+    tl.fromTo("#s5-row-scenes", { opacity: 0, x: -35 }, { opacity: 1, x: 0, duration: .45, ease: "power2.out" }, S5 + 2.9);
+    tl.fromTo("#s5-row-audio", { opacity: 0, x: -35 }, { opacity: 1, x: 0, duration: .45, ease: "power2.out" }, S5 + 3.45);
+    tl.fromTo("#s5-row-gsap", { opacity: 0, x: -35 }, { opacity: 1, x: 0, duration: .45, ease: "power2.out" }, S5 + 4.0);
+    tl.fromTo("#s5-cursor", { opacity: 0, scaleY: .1 }, { opacity: 1, scaleY: 1, duration: .55, ease: "power2.out" }, S5 + 4.5);
+    tl.fromTo("#s5-tools", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .5, ease: "power2.out" }, S5 + 6.45);
+
+    tl.fromTo("#s6-header", { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: .4, ease: "power2.out" }, S6 + .18);
+    tl.fromTo("#s6-title", { opacity: 0, x: -55 }, { opacity: 1, x: 0, duration: .62, ease: "power3.out" }, S6 + .4);
+    tl.fromTo("#s6-table", { opacity: 0, y: 38 }, { opacity: 1, y: 0, duration: .62, ease: "power3.out" }, S6 + 1.35);
+    tl.fromTo("#s6-setup", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .58, ease: "power3.out" }, S6 + 4.3);
+
+    tl.fromTo("#s7-mark", { opacity: 0, y: -12 }, { opacity: 1, y: 0, duration: .4, ease: "power2.out" }, S7 + .2);
+    tl.fromTo("#s7-title", { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: .65, ease: "power3.out" }, S7 + .4);
+    tl.fromTo(".shape-card", { opacity: 0, y: 25 }, { opacity: 1, y: 0, duration: .42, stagger: .28, ease: "power2.out" }, S7 + 1.4);
+    tl.fromTo(".cta-beat", { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: .42, stagger: .46, ease: "power2.out" }, S7 + 3.0);
+    tl.fromTo("#s7-credit", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: .5, ease: "power2.out" }, S7 + 6.0);
+    tl.to("#s7-final-fade", { opacity: 1, duration: .6, ease: "power1.in" }, S7 + 9.4);
+
+    window.__timelines = window.__timelines || {};
+    window.__timelines["explainer-video-promo"] = tl;
+  </script>
+</div>
+</body>
+</html>

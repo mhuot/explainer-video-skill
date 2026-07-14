@@ -7,8 +7,8 @@ produces **45–90 second narrated explainer videos locally**:
 video services, no credits, no watermarks, and $0 per render.
 
 > **Method credit:** [**Idan Shimon**](https://github.com/idanshimon)
-> (Microsoft). His *"How AI Reads a Heart"* 58-second explainer was produced
-> entirely by an AI agent driving an open-source, code-based video stack —
+> (Microsoft). His 58-second concept explainer was produced entirely by an
+> AI agent driving an open-source, code-based video stack —
 > OpenMontage, HyperFrames, Kokoro, FFmpeg — rendered locally without paid
 > cloud generation, at $0. His cardiology solution preview showed the companion use: a customer
 > demo of a product dashboard, built as source code. As he put it: *"the
@@ -143,23 +143,29 @@ test -f packages/cli/dist/cli.js
 
 This install and HyperFrames' first browser launch require network access.
 
-### 5. Install the skill into Microsoft Scout
+### 5. Install the skill
 
 ```bash
 cd /path/to/explainer-video-skill
-./install.sh                                           # → ~/.copilot/skills/explainer-video/
-./install.sh --synced                                 # → ~/.copilot/m-skills/ (cloud-synced across devices)
+./install.sh                 # all three agents below
+./install.sh --claude        # Claude Code            → ~/.claude/skills/explainer-video/
+./install.sh --copilot       # GitHub Copilot CLI + Microsoft Scout → ~/.copilot/skills/explainer-video/
+./install.sh --antigravity   # Google Antigravity     → ~/.gemini/antigravity/global_skills/explainer-video/
+./install.sh --synced        # Scout, cloud-synced    → ~/.copilot/m-skills/explainer-video/
 ```
 
-The installer copies `SKILL.md`, `templates/`, and `docs/`; resource
-references therefore work even if the source clone is elsewhere. Set
-`EXPLAINER_VIDEO_SKILL_DIR` to the installed or source directory when
-running template commands.
+Each target gets `SKILL.md`, `README.md`, `LICENSE`, `templates/`, and
+`docs/`, so resource references work even if the source clone is elsewhere.
+Set `EXPLAINER_VIDEO_SKILL_DIR` to an installed directory when running
+template commands.
 
-Scout discovers skills automatically from those directories
-([docs](https://learn.microsoft.com/en-us/microsoft-scout/use-microsoft-scout)).
-Other agents: point your agent's instruction file at the `SKILL.md` in the
-source or installed directory. It is a plain-markdown runbook with exact
+All three agents discover directory-based skills automatically: Microsoft
+Scout and GitHub Copilot CLI from `~/.copilot/skills/`
+([Scout docs](https://learn.microsoft.com/en-us/microsoft-scout/use-microsoft-scout),
+[Copilot docs](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills)),
+Claude Code from `~/.claude/skills/`, and Google Antigravity from
+`~/.gemini/antigravity/global_skills/`. Other agents: point your instruction
+file at any installed `SKILL.md` — a plain-markdown runbook with exact
 commands.
 
 ### 6. Scout permissions (recommended)

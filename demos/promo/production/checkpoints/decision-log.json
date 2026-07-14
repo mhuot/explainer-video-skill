@@ -1,0 +1,139 @@
+{
+  "project": "explainer-video-skill promotional video",
+  "pipeline": "promotional-explainer",
+  "created": "2026-07-14",
+  "budget": {
+    "mode": "observe",
+    "estimated_usd": 0.0,
+    "actual_usd": 0.0
+  },
+  "_schema_note": "Append-only. A decision's identity is the (category, subject) pair.",
+  "decisions": [
+    {
+      "category": "pipeline_selection",
+      "subject": "Production pipeline",
+      "selected": "promo-video governance with explainer-video subject grammar",
+      "options_considered": [
+        "promo-video governance with explainer-video subject grammar",
+        "generic editor workflow",
+        "cloud template generator"
+      ],
+      "rejected_because": "The user required the promo-video method and a complete local, auditable production.",
+      "confidence": 1.0,
+      "approved_by": "user brief"
+    },
+    {
+      "category": "render_runtime_selection",
+      "subject": "Render runtime",
+      "selected": "HyperFrames 0.7.57 with source-built FFmpeg",
+      "options_considered": [
+        "HyperFrames 0.7.57 with source-built FFmpeg",
+        "Remotion",
+        "manual editor export"
+      ],
+      "rejected_because": "The required local toolchain is installed and the promo-video contract fixes HyperFrames; Remotion was considered as the required alternative.",
+      "confidence": 1.0,
+      "approved_by": "user brief"
+    },
+    {
+      "category": "composition_mode",
+      "subject": "Hero composition approach",
+      "selected": "atelier monolithic composition",
+      "options_considered": [
+        "atelier monolithic composition",
+        "template reskin",
+        "modular sub-compositions"
+      ],
+      "rejected_because": "A custom monolithic composition best supports a distinct, tightly synchronized promotional arc without inheriting the companion template look.",
+      "confidence": 0.94
+    },
+    {
+      "category": "voice_selection",
+      "subject": "Narration voice",
+      "selected": "Kokoro af_heart at speed 1.1",
+      "options_considered": [
+        "Kokoro af_heart at speed 1.1",
+        "system voice",
+        "cloud TTS"
+      ],
+      "rejected_because": "The production contract specifies measured local Kokoro narration and the existing environment imports successfully.",
+      "confidence": 1.0,
+      "approved_by": "user brief"
+    },
+    {
+      "category": "music_selection",
+      "subject": "Music bed",
+      "selected": "deterministic FFmpeg-synthesized low pulse",
+      "options_considered": [
+        "deterministic FFmpeg-synthesized low pulse",
+        "narration only",
+        "downloaded stock track"
+      ],
+      "rejected_because": "A subtle pulse supports the sharper promo arc without licensing ambiguity or network dependency.",
+      "confidence": 0.9
+    },
+    {
+      "category": "output_profile",
+      "subject": "Master delivery",
+      "selected": "1920x1080 30fps H.264/AAC MP4",
+      "options_considered": [
+        "1920x1080 30fps H.264/AAC MP4",
+        "vertical short",
+        "4K master"
+      ],
+      "rejected_because": "The brief asks for one approximately 60-second promo; 1080p is the proven HyperFrames master profile.",
+      "confidence": 1.0,
+      "approved_by": "user brief"
+    },
+    {
+      "category": "approval_gates",
+      "subject": "Production validation",
+      "selected": "locked script, measured audio, lint, check, all scene midpoints, render, ffprobe, loudness and final-frame review",
+      "options_considered": [
+        "full mandatory gate ladder",
+        "render-only review",
+        "browser preview only"
+      ],
+      "rejected_because": "The user explicitly requires every gate and re-rendering until passing.",
+      "confidence": 1.0,
+      "approved_by": "user brief"
+    },
+    {
+      "category": "delivery_packaging",
+      "subject": "Production record and credit",
+      "selected": "self-contained source production with Idan Shimon method credit",
+      "options_considered": [
+        "self-contained source production with Idan Shimon method credit",
+        "MP4 only",
+        "uncredited method"
+      ],
+      "rejected_because": "The brief requires all sources and explicit originator credit in the close or production record.",
+      "confidence": 1.0,
+      "approved_by": "user brief"
+    },
+    {
+      "category": "voice_selection",
+      "subject": "Narration voice",
+      "selected": "Kokoro af_heart at speed 1.33",
+      "options_considered": [
+        "Kokoro af_heart at speed 1.33",
+        "Kokoro af_heart at speed 1.1",
+        "cut the locked 156-word script"
+      ],
+      "rejected_because": "The measured speed-1.1 narration totaled 68.975 seconds before scene gaps. Speed 1.33 preserves the locked words while targeting an approximately 60-second composition.",
+      "confidence": 0.96
+    },
+    {
+      "category": "voice_selection",
+      "subject": "Narration mix gain",
+      "selected": "deterministic 1.4x gain in TTS source generation",
+      "options_considered": [
+        "deterministic 1.4x gain in TTS source generation",
+        "leave the first master at -29.4 dB mean",
+        "post-process only the final MP4"
+      ],
+      "rejected_because": "The first rendered master measured -29.4 dB mean and -9.3 dB max. Source-level gain keeps reproduction truthful and targets the promo-video method's normal -25 to -28 dB master range without clipping.",
+      "confidence": 0.95
+    }
+  ]
+}

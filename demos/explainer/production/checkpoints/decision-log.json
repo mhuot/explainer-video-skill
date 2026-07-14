@@ -1,0 +1,74 @@
+{
+  "project": "explainer-video-self-explainer",
+  "pipeline": "animated-explainer",
+  "created": "2026-07-14",
+  "budget": {
+    "mode": "observe",
+    "estimated_usd": 0.0,
+    "actual_usd": 0.0
+  },
+  "_schema_note": "Append-only. Decision identity is the (category, subject) pair.",
+  "decisions": [
+    {
+      "category": "pipeline_selection",
+      "subject": "Production pipeline",
+      "selected": "Kokoro to measured timing to HTML/CSS/SVG/GSAP to HyperFrames and FFmpeg QA",
+      "options_considered": ["local measured source-code pipeline", "manual editor", "cloud video generation"],
+      "rejected_because": "The brief and authoritative method require the local measured source-code pipeline.",
+      "confidence": 1.0,
+      "approved_by": "user brief"
+    },
+    {
+      "category": "explainer_shape",
+      "subject": "Explainer shape",
+      "selected": "concept explainer with three process steps",
+      "options_considered": ["concept explainer", "solution preview", "promo"],
+      "rejected_because": "The subject is a method and the brief explicitly asks to teach rather than sell.",
+      "confidence": 1.0,
+      "approved_by": "user brief"
+    },
+    {
+      "category": "voice_selection",
+      "subject": "Narration voice",
+      "selected": "Kokoro af_heart at speed 1.1",
+      "options_considered": ["af_heart at 1.1", "other Kokoro voice", "no narration"],
+      "rejected_because": "This is the method default and supports the target script budget.",
+      "confidence": 0.95
+    },
+    {
+      "category": "music_selection",
+      "subject": "Music",
+      "selected": "narration only",
+      "options_considered": ["narration only", "deterministic ambient pad"],
+      "rejected_because": "Silence beneath the voice keeps the instructional hierarchy clear.",
+      "confidence": 0.95
+    },
+    {
+      "category": "output_profile",
+      "subject": "Master output",
+      "selected": "1920x1080 H.264/AAC MP4 at 30 fps",
+      "options_considered": ["1080p H.264/AAC", "720p", "4K"],
+      "rejected_because": "1080p is the requested production convention and broadly playable.",
+      "confidence": 1.0
+    },
+    {
+      "category": "approval_gates",
+      "subject": "Quality gates",
+      "selected": "script lock, measured audio, lint, check, every-scene midpoint inspection, render, ffprobe, loudness and final-frame inspection",
+      "options_considered": ["full gate ladder", "render-only review"],
+      "rejected_because": "The production contract makes every listed gate mandatory.",
+      "confidence": 1.0,
+      "approved_by": "user brief"
+    },
+    {
+      "category": "delivery_packaging",
+      "subject": "Delivery",
+      "selected": "self-contained source production plus one H.264/AAC master",
+      "options_considered": ["source plus master", "master only", "web link"],
+      "rejected_because": "The brief requires auditable source artifacts and no external runtime dependency.",
+      "confidence": 1.0,
+      "approved_by": "user brief"
+    }
+  ]
+}
+
