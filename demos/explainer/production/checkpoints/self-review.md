@@ -23,37 +23,38 @@ measured padding produces a planned composition of 73.750 seconds.
 
 The measured manifest, seven `<audio>` durations, seven scene boundaries, and
 JS constants were compared. All seven audio durations match
-`durations.json`. The composition has 142 unique IDs, including seven unique,
+`durations.json`. The composition has 143 unique IDs, including seven unique,
 explicit audio IDs. No HTTP, HTTPS, or CDN reference exists in `index.html`;
 GSAP is vendored locally.
 
 ## Validation
 
-- HyperFrames `lint`: 0 errors, 1 advisory warning. The warning reports seven
-  clips on one track; this is intentional for the required single readable
-  composition.
+- HyperFrames `lint`: 0 errors, 2 advisory warnings. The warnings report a
+  301-line composition and seven clips on one track; both are intentional for
+  the required single readable composition.
 - HyperFrames `check`: passed; 0 runtime, layout, or motion errors; 70/70
   WCAG AA text checks passed. Three informational connector heuristics were
-  reported for the self-contained edit/rerender loop SVG; inspected pixels
-  show the paths correctly attached.
+  reported for the nested edit/rerender loop SVG; final-render pixels show
+  the directed source → edit → rerender cycle correctly attached.
 - Every measured midpoint was captured and visually inspected. The seven
   frames match the scene plan: no black frames, clipping, overflow, accidental
-  overlap, missing labels, or incomplete diagram draws.
+  overlap, missing labels, or incomplete diagram draws. The three source-card
+  paths in scene 3 and the directed loop in scene 6 were specifically
+  re-inspected after their endpoint geometry was corrected.
 
 ## Render QA
 
 - Rendered by HyperFrames 0.7.57 at high quality in 23.8 seconds.
 - ffprobe runtime: **73.792 s**, +0.042 s from plan and within ±0.1 s.
-- File: 5,970,103 bytes; 647,235 bit/s.
+- File: 5,960,598 bytes; 646,205 bit/s.
 - Video: H.264, 1920×1080, 30 fps.
 - Audio: AAC stereo, 48 kHz.
 - FFmpeg volumedetect: mean −29.5 dB; max −7.1 dB, safely below 0 dB.
-- Final encoded frames at 3.8, 11.9, 21.3, 31.9, 44.6, 58.2, 69.3, and
-  73.4 seconds were visually inspected. They retain the approved typography,
-  warm-neutral palette, complete flow diagrams, QA loop, recap, and Idan
-  Shimon credit.
+- Corrected final encoded frames at 21.3 and 58.2 seconds were visually
+  inspected; the unchanged approved frames retain the typography,
+  warm-neutral palette, remaining diagrams, recap, and Idan Shimon credit.
 - SHA-256:
-  `7bc5309c65dfe4badb92189768a6f08f216c4709f2dee97e953ca87a0558bd65`
+  `950ac8c02630f4b0b30c732da6587903cb8c7a684088c0b8e0c65e5a99b62020`
 
 No optional feedback or telemetry command was invoked. Transient QA frames
 were removed after inspection.

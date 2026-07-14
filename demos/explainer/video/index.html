@@ -176,6 +176,7 @@
   .gate span { display: block; margin-top: 11px; color: var(--muted); font-size: 16px; line-height: 1.35; }
   #s6-loop { position: absolute; left: 1030px; top: 215px; width: 700px; height: 610px; }
   #s6-loop svg { position: absolute; inset: 0; width: 700px; height: 610px; }
+  #loop-arrow { opacity: 0; }
   .loop-node {
     position: absolute; width: 210px; height: 118px; padding-top: 39px;
     text-align: center; font-size: 25px; font-weight: 730;
@@ -264,9 +265,9 @@
         <div class="source-card panel" id="source-3"><span>LOCAL SOURCE</span>docs/method.md</div>
       </div>
       <svg id="s3-connect" viewBox="0 0 200 430">
-        <path class="flow-line" id="s3-path-1" d="M10 25 C110 25 80 190 190 190"/>
-        <path class="flow-line" id="s3-path-2" d="M10 190 L190 190"/>
-        <path class="flow-line" id="s3-path-3" d="M10 355 C110 355 80 190 190 190"/>
+        <path class="flow-line" id="s3-path-1" d="M25 13 C110 13 80 190 190 190"/>
+        <path class="flow-line" id="s3-path-2" d="M25 119 C110 119 100 190 190 190"/>
+        <path class="flow-line" id="s3-path-3" d="M25 225 C110 225 80 190 190 190"/>
       </svg>
       <div class="panel" id="s3-script">
         <h3>LOCKED NARRATION</h3>
@@ -368,9 +369,10 @@
     </div>
     <div id="s6-loop">
       <svg viewBox="0 0 700 610">
-        <path class="flow-line" id="loop-path-1" d="M350 138 C590 138 630 240 570 285"/>
-        <path class="flow-line" id="loop-path-2" d="M465 345 C440 525 260 525 235 345"/>
-        <path class="flow-line" id="loop-path-3" d="M130 285 C70 240 110 138 350 138"/>
+        <defs><marker id="loop-arrow" markerWidth="18" markerHeight="18" refX="16" refY="9" orient="auto" markerUnits="userSpaceOnUse"><path d="M0 0 L18 9 L0 18 Z" fill="var(--accent)"/></marker></defs>
+        <path class="flow-line" id="loop-path-1" d="M300 138 C270 168 215 195 150 225" marker-end="url(#loop-arrow)"/>
+        <path class="flow-line" id="loop-path-2" d="M245 284 C315 395 385 395 455 284" marker-end="url(#loop-arrow)"/>
+        <path class="flow-line" id="loop-path-3" d="M550 225 C485 195 430 168 400 138" marker-end="url(#loop-arrow)"/>
       </svg>
       <div class="loop-node panel" id="loop-source">SOURCE</div>
       <div class="loop-node panel" id="loop-edit">EDIT</div>
@@ -471,10 +473,11 @@
     enter("#s6-title", S6 + .45);
     tl.fromTo(".gate", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: .5, stagger: .32, ease: "power2.out" }, S6 + 1.2);
     tl.fromTo(".gate-check", { scale: .6 }, { scale: 1, duration: .45, stagger: .32, ease: "back.out(1.5)" }, S6 + 1.35);
-    enter("#loop-source", S6 + 2.1, { fromScale: .9, fromY: 0 });
-    enter("#loop-render", S6 + 2.55, { fromScale: .9, fromY: 0 });
-    enter("#loop-edit", S6 + 3.0, { fromScale: .9, fromY: 0 });
-    tl.to("#loop-path-1, #loop-path-2, #loop-path-3", { strokeDashoffset: 0, duration: 1.0, stagger: .32, ease: "power1.inOut" }, S6 + 2.2);
+    enter("#loop-source", S6 + 2.0, { fromScale: .9, fromY: 0 });
+    enter("#loop-edit", S6 + 2.35, { fromScale: .9, fromY: 0 });
+    enter("#loop-render", S6 + 2.7, { fromScale: .9, fromY: 0 });
+    tl.to("#loop-path-1, #loop-path-2, #loop-path-3", { strokeDashoffset: 0, duration: 1.0, stagger: .32, ease: "power1.inOut" }, S6 + 3.0);
+    tl.to("#loop-arrow", { opacity: 1, duration: .2 }, S6 + 4.0);
     enter("#s6-result", S6 + 4.35, { fromY: 12 });
 
     enter("#s7-eyebrow", S7 + .2, { fromY: 10 });
