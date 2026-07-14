@@ -79,8 +79,9 @@
     </svg>
   </section>
 
-  <!-- RULE: media are DIRECT children of the root; every one has an id
-       (missing id = SILENT audio in renders). Track 7 = narration. -->
+  <!-- RULE: media are DIRECT children of the root; every one has an explicit,
+       non-empty, unique id. In HyperFrames, audio without one may play in a
+       browser preview but renders SILENT. Track 7 = narration. -->
   <audio id="aud-s1" data-start="0.5" data-duration="5.0" data-track-index="7" data-volume="1" src="assets/audio/s1_hook.wav"></audio>
   <audio id="aud-s2" data-start="6.5" data-duration="7.0" data-track-index="7" data-volume="1" src="assets/audio/s3_step1.wav"></audio>
 

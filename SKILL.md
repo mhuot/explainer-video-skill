@@ -1,21 +1,28 @@
 ---
-description: "Produce a 45–90 second narrated explainer video ('how X works' or a solution preview) entirely offline: kokoro TTS narration, HTML/CSS/GSAP scenes rendered by HyperFrames, FFmpeg encode and QA, OpenMontage-style production governance. Use when asked to explain how something works as a video, create a solution/demo preview video, or make an explainer for a customer presentation."
+name: explainer-video
+description: "Produce a 45–90 second narrated explainer video, how-it-works video, product walkthrough, solution preview, or customer-presentation video with local Kokoro TTS, HTML/CSS/GSAP scenes rendered by HyperFrames, FFmpeg encoding and QA, and auditable production gates. Use when asked to explain a concept or process as a video, make an explainer, preview a solution or demo, or create a narrated product tour."
 ---
 
-# Explainer Video Production (offline, local toolchain)
+# Explainer Video Production (local, offline-capable toolchain)
 
 Method credit: **Idan Shimon** (Microsoft, github.com/idanshimon). His
 *"How AI Reads a Heart"* 58-second explainer — produced entirely by an AI
-agent driving OpenMontage, HyperFrames, Kokoro, and FFmpeg, fully offline at
-$0 — defined this format, and his cardiology solution preview showed the
+agent driving OpenMontage, HyperFrames, Kokoro, and FFmpeg locally at $0 —
+defined this format, and his cardiology solution preview showed the
 companion use: a video demo of a product dashboard built as source code.
 The operating premise is his: **the entire video is source code — any scene,
 word, color, or timing is a one-line edit and a re-render.**
 
-Written for **Microsoft Scout** (custom skill, `~/.copilot/skills/`) and any
-other agent that can read files and run shell commands. Canonical home:
-`~/explainer-video-skill` — `templates/` has the TTS script, a composition
-skeleton, and the decision-log schema; `README.md` covers install.
+Written for **Microsoft Scout** and any other agent that can read files and
+run shell commands. Do not assume a clone under `~`: set
+`EXPLAINER_VIDEO_SKILL_DIR` to the directory containing this `SKILL.md`.
+Its `templates/` directory has the TTS script, composition skeleton, and
+decision-log schema; `README.md` covers installation.
+
+The production phase can run offline after packages, Kokoro weights, and
+HyperFrames' browser are cached. Installation, first model/browser use,
+online research, and optional feedback require network. No cloud generation,
+telemetry, or feedback submission is required.
 
 **Core principle: the script locks first; every downstream number is DERIVED
 from measured narration audio, never guessed.**
@@ -40,7 +47,7 @@ no competitor table, no hard CTA. The two shapes:
 | What it means | The outcome for the user/patient/business | ~13% |
 | Recap + close | One-sentence summary, title card, "learn more" pointer | ~10% |
 
-Script budget: ≈2.55 words/second at kokoro `af_heart` speed 1.1 → 115–130
+Script budget: ≈2.55 words/second at Kokoro `af_heart` speed 1.1 → 115–130
 words for 45–50 s, ~150 for 60 s, ~210 for 85 s. Write acronyms spaced for
 TTS ("E C G", "A I"); on-screen text uses real spelling.
 
@@ -70,38 +77,101 @@ TTS ("E C G", "A I"); on-screen text uses real spelling.
 
 | Tool | Location | License | Role | Invocation |
 | --- | --- | --- | --- | --- |
-| OpenMontage | `~/OpenMontage` | AGPLv3 (tooling only; nothing ships in the video) | Production governance: stage order, decision log, approval gates, post-render self-review | Read `AGENT_GUIDE.md` + `pipeline_defs/animated-explainer.yaml`; the agent is the orchestrator |
-| kokoro | `~/kokoro` | code MIT-ish, **weights Apache 2.0** | Narration TTS → 24 kHz WAV per scene | Python venv; `KPipeline(lang_code="a")`, voice `af_heart`, `speed=1.1` |
-| HyperFrames | `~/hyperframes` | Apache 2.0 | HTML/CSS/GSAP composition → deterministic MP4 via headless Chrome | `node ~/hyperframes/packages/cli/dist/cli.js <cmd>` |
-| FFmpeg | built from `~/FFmpeg` source | GPL build (libx264) | Music synth (`aevalsrc`), encode, ffprobe QA, loudness, packaging | build dir on `PATH` before HyperFrames commands |
-| bun / Node ≥22 / Python 3.12 (uv venv) / espeak-ng | — | — | build + runtimes | `npm i -g bun`; `brew install espeak-ng` |
+| Kokoro | PyPI package + cached `hexgrad/Kokoro-82M` | code **Apache 2.0**; weights **Apache 2.0** | Narration TTS → 24 kHz WAV per scene | Python 3.12 uv venv; `KPipeline(lang_code="a")`, voice `af_heart`, `speed=1.1` |
+| HyperFrames | `$HYPERFRAMES_DIR` | Apache 2.0 | HTML/CSS/GSAP composition → deterministic MP4 via headless Chrome | `node "$HYPERFRAMES_DIR/packages/cli/dist/cli.js" <cmd>` |
+| FFmpeg | `$FFMPEG_SOURCE_DIR`; binary in `$FFMPEG_BUILD_DIR` | GPL build (libx264) | Music synth (`aevalsrc`), encode, ffprobe QA, loudness, packaging | put build dir on `PATH` |
+| bun / Node ≥22 / Python 3.12 + uv / espeak-ng | — | various | build + runtimes | install with the platform commands below |
 | gsap 3 | vendored `gsap.min.js` | GSAP standard license | scene animation | copy into `video/assets/` — never a CDN script (offline determinism) |
+
+The stage order, append-only decisions, approval gates, and self-review rules
+are fully specified here; OpenMontage is acknowledged as an influence but is
+not a required checkout or reference repository.
 
 ## Environment bootstrap (once per machine)
 
+Choose one system-package block.
+
 ```bash
-brew install x264 espeak-ng
-npm i -g bun
-# FFmpeg MUST include libx264 or renders fail with "Unrecognized option 'preset'":
-mkdir -p ~/ffbuild && cd ~/ffbuild
-PKG_CONFIG_PATH=/opt/homebrew/opt/x264/lib/pkgconfig ~/FFmpeg/configure \
+# macOS (Homebrew)
+brew install node uv x264 pkg-config nasm espeak-ng libsndfile
+npm install --global bun
+```
+
+```bash
+# Debian/Ubuntu Linux
+sudo apt-get update
+ASOUND_PACKAGE=libasound2
+apt-cache show libasound2t64 >/dev/null 2>&1 && ASOUND_PACKAGE=libasound2t64
+sudo apt-get install -y build-essential curl git pkg-config nasm yasm \
+  libx264-dev espeak-ng libespeak-ng1 libsndfile1 ca-certificates \
+  fonts-liberation "$ASOUND_PACKAGE" libatk-bridge2.0-0 libatk1.0-0 libcups2 \
+  libdbus-1-3 libdrm2 libgbm1 libgtk-3-0 libnspr4 libnss3 libx11-xcb1 \
+  libxcomposite1 libxdamage1 libxfixes3 libxkbcommon0 libxrandr2 xdg-utils
+curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh
+sudo -E bash nodesource_setup.sh
+rm nodesource_setup.sh
+sudo apt-get install -y nodejs
+curl -LsSf https://astral.sh/uv/install.sh | sh
+export PATH="$HOME/.local/bin:$PATH"
+npm install --global bun
+```
+
+The additional Linux libraries support Puppeteer's headless Chrome.
+
+Clone HyperFrames and FFmpeg from their public repositories if absent:
+
+```bash
+git clone https://github.com/heygen-com/hyperframes "$HOME/hyperframes"
+git clone https://git.ffmpeg.org/ffmpeg.git "$HOME/FFmpeg"
+export HYPERFRAMES_DIR="${HYPERFRAMES_DIR:-$HOME/hyperframes}"
+export FFMPEG_SOURCE_DIR="${FFMPEG_SOURCE_DIR:-$HOME/FFmpeg}"
+export FFMPEG_BUILD_DIR="${FFMPEG_BUILD_DIR:-$HOME/ffbuild}"
+```
+
+Build FFmpeg on macOS:
+
+```bash
+mkdir -p "$FFMPEG_BUILD_DIR" && cd "$FFMPEG_BUILD_DIR"
+X264_PREFIX="$(brew --prefix x264)"
+PKG_CONFIG_PATH="$X264_PREFIX/lib/pkgconfig" "$FFMPEG_SOURCE_DIR/configure" \
   --disable-doc --disable-debug --enable-videotoolbox \
   --enable-gpl --enable-libx264 \
-  --extra-cflags="-I/opt/homebrew/opt/x264/include" \
-  --extra-ldflags="-L/opt/homebrew/opt/x264/lib"
-make -j8 ffmpeg ffprobe
-# HyperFrames CLI: build from the MONOREPO ROOT (packages/cli alone fails
-# on unresolved @hyperframes/core):
-cd ~/hyperframes && bun install && bun run build
-# Verify:
-export PATH="$HOME/ffbuild:$PATH"
-node ~/hyperframes/packages/cli/dist/cli.js doctor   # FFmpeg/FFprobe/Chrome ✓
+  --extra-cflags="-I$X264_PREFIX/include" \
+  --extra-ldflags="-L$X264_PREFIX/lib"
+make -j"$(sysctl -n hw.ncpu)" ffmpeg ffprobe
+./ffmpeg -hide_banner -encoders | grep libx264
 ```
+
+Build FFmpeg on Linux (do not use the macOS-only VideoToolbox/Homebrew
+flags):
+
+```bash
+mkdir -p "$FFMPEG_BUILD_DIR" && cd "$FFMPEG_BUILD_DIR"
+"$FFMPEG_SOURCE_DIR/configure" \
+  --disable-doc --disable-debug --enable-gpl --enable-libx264
+make -j"$(nproc)" ffmpeg ffprobe
+./ffmpeg -hide_banner -encoders | grep libx264
+```
+
+Build HyperFrames from its monorepo root and verify:
+
+```bash
+cd "$HYPERFRAMES_DIR"
+bun install
+bun run build
+test -f packages/cli/dist/cli.js
+export PATH="$FFMPEG_BUILD_DIR:$PATH"
+node "$HYPERFRAMES_DIR/packages/cli/dist/cli.js" doctor
+```
+
+`doctor` may download Chrome on first use. FFmpeg, FFprobe, Node, and Chrome
+must all pass before production.
 
 **Microsoft Scout note:** builds and installs (`npm i`, `bun install`,
 `make`) sit in Scout's *Prompt* permission tier — approve them when asked, or
 pre-add allow patterns in **Settings → Permissions** (e.g. `node *`,
-`python *`, `~/ffbuild/ffmpeg *`, `~/ffbuild/ffprobe *`) so the render loop
+`python *`, `$FFMPEG_BUILD_DIR/ffmpeg *`,
+`$FFMPEG_BUILD_DIR/ffprobe *`) so the render loop
 runs unattended. Keep the video project inside your Scout workspace
 directory so file tools cover it.
 
@@ -117,7 +187,7 @@ directory so file tools cover it.
     scene_plan/scene-plan.md      # per-scene visual + motion notes
     checkpoints/decision-log.json # append-only; (category, subject) is the key
     checkpoints/self-review.md    # post-render evidence
-    assets/audio/                 # kokoro WAVs + durations.json
+    assets/audio/                 # Kokoro WAVs + durations.json
     renders/
   tools/tts_generate.py           # from templates/, edit SCENE_NARRATIONS only
   video/
@@ -125,6 +195,24 @@ directory so file tools cover it.
     assets/gsap.min.js            # vendored
     assets/audio/                 # WAV copies (composition-relative paths)
 ```
+
+Initialize the per-video Python environment before narration. This is
+required even if Kokoro is installed globally:
+
+```bash
+cd <project>
+uv venv --python 3.12 .venv
+uv pip install --python .venv/bin/python "kokoro>=0.9.4,<1" numpy soundfile
+mkdir -p tools
+cp "$EXPLAINER_VIDEO_SKILL_DIR/templates/tts_generate.py" tools/
+mkdir -p video/assets
+curl -fL https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js \
+  -o video/assets/gsap.min.js
+```
+
+These packages cover every third-party import in the template. Keep the
+generated `.venv/` out of version control. The GSAP download is a one-time,
+networked setup step; the vendored file is then used locally during renders.
 
 ## Stages
 
@@ -134,16 +222,17 @@ directory so file tools cover it.
    cardiology AI): claims must be conservative, no outcome promises, and the
    close should carry the customer's own disclaimer language if provided.
 2. **Proposal** — arc + scene list + theme + duration; log decisions
-   (`pipeline_selection`, `voice_selection`, `music_selection`,
+   (`pipeline_selection`, `explainer_shape`, `voice_selection`, `music_selection`,
    `output_profile`, `approval_gates` — schema in
-   `templates/decision-log.json`). Changed decisions are APPENDED with the
-   same (category, subject), never edited.
+   `$EXPLAINER_VIDEO_SKILL_DIR/templates/decision-log.json`). Changed
+   decisions are APPENDED with the same (category, subject), never edited.
 3. **Script lock** — the words are final before any audio or visuals exist.
 4. **Narration + timing derivation** — copy
-   `~/explainer-video-skill/templates/tts_generate.py`, edit
+   `$EXPLAINER_VIDEO_SKILL_DIR/templates/tts_generate.py`, edit
    `SCENE_NARRATIONS`, run in the venv
-   (`PYTORCH_ENABLE_MPS_FALLBACK=1 python tools/tts_generate.py`; first run
-   downloads Kokoro-82M ~330 MB, then fully offline). Then derive:
+   (`PYTORCH_ENABLE_MPS_FALLBACK=1 .venv/bin/python
+   tools/tts_generate.py`; first run downloads Kokoro-82M weights, while
+   later inference can run from the local cache). Then derive:
 
    ```
    n_start[0] = 0.5
@@ -154,13 +243,28 @@ directory so file tools cover it.
 
    The numbers land in THREE places that must agree: scene
    `data-start/duration`, `<audio data-start>`, and the JS scene constants.
-5. **Music** — optional for explainers; when used, a synthesized `aevalsrc`
-   pad at `data-volume` 0.10–0.14, faded in/out. Solution previews often
-   read better with narration only.
+5. **Music** — optional for explainers. Solution previews often read better
+   with narration only. When music is requested, synthesize a deterministic
+   pad locally; do not leave the recipe implicit:
+
+   ```bash
+   TOTAL=60.0
+   FADE_OUT=56.5
+   mkdir -p production/assets/audio
+   "$FFMPEG_BUILD_DIR/ffmpeg" -y -f lavfi \
+     -i "aevalsrc=0.035*sin(2*PI*110*t)+0.025*sin(2*PI*164.81*t)+0.02*sin(2*PI*220.6*t):s=48000:d=${TOTAL}" \
+     -af "lowpass=f=1400,afade=t=in:st=0:d=2,afade=t=out:st=${FADE_OUT}:d=3.5" \
+     -c:a pcm_s16le production/assets/audio/music.wav
+   ```
+
+   Set `TOTAL` from narration-derived timing and `FADE_OUT=TOTAL-3.5`.
+   Include the WAV as a direct-root audio element on track 8 at
+   `data-volume` 0.10–0.14.
 6. **Composition** — start from
-   `~/explainer-video-skill/templates/composition-skeleton.html`. The
+   `$EXPLAINER_VIDEO_SKILL_DIR/templates/composition-skeleton.html`. The
    non-negotiables (each one is a debugged failure, not a preference):
-   - every `<video>/<audio>` has an `id` — missing id = SILENT render
+   - every `<video>/<audio>` has an explicit, non-empty `id`; in HyperFrames,
+     audio without one may play in a browser preview but renders SILENT
    - entrances are `tl.fromTo(...)`; never a CSS `transform:` initial state
      on a tweened element
    - background fill on a full-bleed child, never the composition root
@@ -175,26 +279,72 @@ directory so file tools cover it.
 7. **Validation ladder** (cheap → expensive; fix everything before render):
 
    ```bash
-   export PATH="$HOME/ffbuild:$PATH"; cd video
-   node ~/hyperframes/packages/cli/dist/cli.js lint
-   node ~/hyperframes/packages/cli/dist/cli.js check
-   node ~/hyperframes/packages/cli/dist/cli.js snapshot --at <every scene midpoint>
+   export PATH="$FFMPEG_BUILD_DIR:$PATH"; cd video
+   CLI="node $HYPERFRAMES_DIR/packages/cli/dist/cli.js"
+   $CLI lint
+   $CLI check
+   $CLI snapshot --at <every scene midpoint>
    # then actually LOOK at each frame against the scene plan
    ```
 8. **Render + self-review** —
 
    ```bash
-   node ~/hyperframes/packages/cli/dist/cli.js render --quality high \
-     --output ../production/renders/<name>-v1.mp4
-   ffprobe -v error -show_entries format=duration <out>   # ±0.1s of plan
-   ffmpeg -i <out> -af volumedetect -f null -             # max < 0 dB
-   # extract 3-4 frames, view them, write checkpoints/self-review.md
+   OUT="../production/renders/explainer-v1.mp4"
+   mkdir -p ../production/renders ../production/checkpoints/frames
+   $CLI render --quality high --output "$OUT"
+   "$FFMPEG_BUILD_DIR/ffprobe" -v error \
+     -show_entries format=duration,size,bit_rate \
+     -show_entries stream=codec_name,width,height,r_frame_rate "$OUT"
+   "$FFMPEG_BUILD_DIR/ffmpeg" -i "$OUT" \
+     -af volumedetect -f null -
+   for t in 3 15 30 45; do
+     "$FFMPEG_BUILD_DIR/ffmpeg" -y -ss "$t" -i "$OUT" \
+       -frames:v 1 "../production/checkpoints/frames/qa-${t}.png"
+   done
    ```
+
+   Choose frame times that fall within the actual runtime, view every
+   extracted image, confirm duration is within ±0.1 s of plan and
+   `max_volume` is below 0 dB, then write
+   `production/checkpoints/self-review.md`.
 9. **Packaging** — Teams/SharePoint/email preview: the H.264+AAC master
    plays everywhere in the Microsoft ecosystem as-is. For YouTube/Stream
    publication, make a derivative: stream-copy video, two-pass `loudnorm`
-   audio to −14 LUFS / −1 dBTP, `-movflags +faststart`. Never re-encode the
-   video stream for packaging — fix only audio and the container.
+   audio to −14 LUFS / −1 dBTP, `-movflags +faststart`. First measure with
+   JSON output:
+
+   ```bash
+   "$FFMPEG_BUILD_DIR/ffmpeg" -i master.mp4 \
+     -af loudnorm=I=-14:TP=-1:LRA=11:print_format=json -f null -
+   ```
+
+   Copy `input_i`, `input_tp`, `input_lra`, `input_thresh`, and
+   `target_offset` from that output into pass two:
+
+   ```bash
+   "$FFMPEG_BUILD_DIR/ffmpeg" -i master.mp4 \
+     -map 0:v:0 -map 0:a:0 -c:v copy \
+     -af "loudnorm=I=-14:TP=-1:LRA=11:measured_I=<input_i>:measured_TP=<input_tp>:measured_LRA=<input_lra>:measured_thresh=<input_thresh>:offset=<target_offset>:linear=true" \
+     -c:a aac -b:a 384k -ar 48000 -movflags +faststart output.mp4
+   "$FFMPEG_BUILD_DIR/ffmpeg" -i output.mp4 \
+     -af loudnorm=I=-14:TP=-1:LRA=11:print_format=summary -f null -
+   ```
+
+   Never re-encode the video stream solely for packaging.
+
+   For YouTube, assess disclosure under the official
+   [AI disclosure policy](https://support.google.com/youtube/answer/14328491).
+   Realistic, meaningfully generated/altered content that could be mistaken
+   for real events or a real person's actions requires disclosure. YouTube
+   exempts examples such as cloning one's own voice for voiceovers, so
+   Kokoro narration is not categorically “yes”; impersonating a real person
+   is. Disclose when required or uncertain. The label itself does not limit
+   audience or monetization.
+
+10. **Optional feedback** — only with the user's informed choice, the
+    HyperFrames CLI may support a `feedback` command. It is not a quality
+    gate, may use the network and transmit the supplied rating/comment, and
+    must never be invoked as telemetry by default.
 
 ## Failure modes (already paid for)
 
@@ -207,14 +357,15 @@ directory so file tools cover it.
 | element visible before its entrance when scrubbing | CSS transform + `.to()` → `fromTo` |
 | frame renders black though preview is fine | background on composition root → full-bleed child |
 | upload plays quiet on YouTube/Stream | master < −14 LUFS → loudnorm derivative |
-| kokoro import errors | espeak-ng missing or venv not active |
+| Kokoro import errors | espeak-ng missing or venv not active |
 
 ## Non-negotiables
 
 - Locked script before any asset; measured durations before any timing.
 - Truthful, sourced claims — especially for clinical/regulated subjects.
-- $0 cloud generation; network only for one-time tool/weight setup.
-- One repo per video; atomic conventional commits; Python in a venv,
-  black+pylint clean.
+- No required cloud generation. Be explicit when installation, model/browser
+  downloads, online research, or optional feedback use the network.
+- Do not submit telemetry or feedback unless the user opts in.
+- One repo per video; atomic conventional commits; Python in a 3.12 uv venv.
 - The subject's owner signs off before the video ships to customers or
   official channels.

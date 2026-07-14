@@ -1,12 +1,12 @@
-"""Generate per-scene explainer narration WAVs using kokoro (offline).
+"""Generate generic per-scene explainer narration WAVs with Kokoro.
 
-Runs Kokoro-82M locally with the ``af_heart`` voice and writes one 24 kHz WAV
-per scene plus a ``durations.json`` manifest — the composition's timing is
-DERIVED from these measured durations, never guessed.
+After its model files are cached, Kokoro-82M inference runs locally without a
+network connection. This template writes one 24 kHz WAV per scene plus a
+``durations.json`` manifest from which composition timing can be derived.
 
-Edit ``SCENE_NARRATIONS`` only. Budget ≈2.55 words/second at speed 1.1.
-Write acronyms spaced for TTS ("E C G", "A I"); on-screen text uses the real
-spelling.
+Replace every placeholder in ``SCENE_NARRATIONS`` before running. Budget
+approximately 2.55 words/second at speed 1.1. Spell out or space acronyms as
+needed for pronunciation; on-screen text can retain its normal spelling.
 """
 
 import json
@@ -37,12 +37,21 @@ SCENE_NARRATIONS: list[tuple[str, str]] = [
 
 def synthesize_scene(pipeline: KPipeline, scene_id: str, narration_text: str) -> float:
     """Synthesize one scene's narration; return its duration in seconds."""
+    narration_text = narration_text.strip()
+    if not narration_text:
+        raise ValueError(f"narration is empty for {scene_id}")
+    if narration_text.startswith("<") and narration_text.endswith(">"):
+        raise ValueError(f"replace the narration placeholder for {scene_id}")
+
     audio_chunks = [
         chunk_audio
         for _graphemes, _phonemes, chunk_audio in pipeline(
             narration_text, voice=VOICE_NAME, speed=SPEECH_SPEED
         )
     ]
+    if not audio_chunks:
+        raise RuntimeError(f"Kokoro produced no audio for {scene_id}")
+
     scene_audio = np.concatenate([np.asarray(chunk) for chunk in audio_chunks])
     output_path = OUTPUT_DIRECTORY / f"{scene_id}.wav"
     soundfile.write(output_path, scene_audio, SAMPLE_RATE_HZ)
@@ -60,7 +69,9 @@ def main() -> None:
         for scene_id, narration_text in SCENE_NARRATIONS
     }
     manifest_path = OUTPUT_DIRECTORY / "durations.json"
-    manifest_path.write_text(json.dumps(scene_durations, indent=2) + "\n")
+    manifest_path.write_text(
+        json.dumps(scene_durations, indent=2) + "\n", encoding="utf-8"
+    )
     total_seconds = sum(scene_durations.values())
     print(f"total narration: {total_seconds:.2f}s -> {manifest_path}")
 
