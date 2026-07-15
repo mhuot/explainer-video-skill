@@ -67,7 +67,7 @@ Agents that natively discover directory-based skills:
 | Agent | Skill directory | Documentation |
 | --- | --- | --- |
 | **GitHub Copilot CLI** | `~/.copilot/skills/` | [Copilot CLI skills docs](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills) |
-| **Scout** (GitHub Copilot cloud agent) | `~/.copilot/skills/` or `~/.copilot/m-skills/` (cloud-synced) | [Scout docs](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/copilot-coding-agent) |
+| **Scout** (GitHub Copilot cloud agent) | `~/.copilot/skills/` or `~/.copilot/m-skills/` (cloud-synced) | [Scout docs](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent) |
 | **Claude Code** | `~/.claude/skills/` | [Claude Code docs](https://docs.anthropic.com/en/docs/claude-code/overview) |
 | **Google Gemini CLI** (Antigravity) | `~/.gemini/antigravity/global_skills/` | [Gemini CLI repo](https://github.com/google-gemini/gemini-cli) |
 
