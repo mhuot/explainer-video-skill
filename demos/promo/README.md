@@ -11,21 +11,29 @@ Final master:
 
 ## Reproduce exactly
 
-The commands below use the locally proven tools requested for this production.
-Kokoro packages and model weights must already be present in the shared promo
-skill environment; no demo virtual environment is created.
+The commands below use the environment variables set during installation.
+Set them to match your local paths if they differ from the defaults:
 
 ```bash
-cd /Users/mhuot/explainer-video-skill/demos/promo
-export PATH="/Users/mhuot/ffmpeg-build:$PATH"
+export FFMPEG_BUILD_DIR="${FFMPEG_BUILD_DIR:-$HOME/ffbuild}"
+export HYPERFRAMES_DIR="${HYPERFRAMES_DIR:-$HOME/hyperframes}"
+export EXPLAINER_VIDEO_SKILL_DIR="${EXPLAINER_VIDEO_SKILL_DIR:-$HOME/explainer-video-skill}"
+```
+
+Kokoro packages and model weights must already be present in the project
+virtual environment (`.venv`).
+
+```bash
+cd "$EXPLAINER_VIDEO_SKILL_DIR/demos/promo"
+export PATH="$FFMPEG_BUILD_DIR:$PATH"
 export PYTORCH_ENABLE_MPS_FALLBACK=1
 
 # Recreate measured, gain-corrected per-scene narration.
-/Users/mhuot/promo-video-skill/.venv/bin/python tools/tts_generate.py
+.venv/bin/python tools/tts_generate.py
 cp production/assets/audio/s*.wav video/assets/audio/
 
 # Recreate the deterministic 59.8-second music bed.
-/Users/mhuot/ffmpeg-build/ffmpeg -hide_banner -y \
+"$FFMPEG_BUILD_DIR/ffmpeg" -hide_banner -y \
   -f lavfi \
   -i "aevalsrc=0.055*(sin(2*PI*73.42*t)+0.55*sin(2*PI*110*t)+0.28*sin(2*PI*146.84*t))+0.012*sin(2*PI*(0.35*t)*t):s=48000:d=59.8" \
   -af "highpass=f=45,lowpass=f=1000,afade=t=in:st=0:d=1.5,afade=t=out:st=56.3:d=3.5,pan=stereo|c0=c0|c1=c0" \
@@ -34,31 +42,31 @@ cp production/assets/audio/music-bed.wav video/assets/audio/
 
 # Validate the composition.
 cd video
-node /Users/mhuot/hyperframes/packages/cli/dist/cli.js lint
-node /Users/mhuot/hyperframes/packages/cli/dist/cli.js check
+node "$HYPERFRAMES_DIR/packages/cli/dist/cli.js" lint
+node "$HYPERFRAMES_DIR/packages/cli/dist/cli.js" check
 
 # Recreate and visually review all exact scene-midpoint snapshots.
-node /Users/mhuot/hyperframes/packages/cli/dist/cli.js snapshot \
+node "$HYPERFRAMES_DIR/packages/cli/dist/cli.js" snapshot \
   --at 3.5,11.15,18.713,25.75,34.513,44.725,54.8 \
   --no-end --describe false
 
 # Render the master.
-node /Users/mhuot/hyperframes/packages/cli/dist/cli.js render \
+node "$HYPERFRAMES_DIR/packages/cli/dist/cli.js" render \
   --quality high \
   --output ../production/renders/explainer-video-promo-v1.mp4
 
 # Probe duration, streams, and loudness.
 cd ..
-/Users/mhuot/ffmpeg-build/ffprobe -v error \
+"$FFMPEG_BUILD_DIR/ffprobe" -v error \
   -show_entries format=duration,size,bit_rate \
   -show_entries stream=index,codec_type,codec_name,width,height,r_frame_rate,sample_rate,channels \
   -of json production/renders/explainer-video-promo-v1.mp4
-/Users/mhuot/ffmpeg-build/ffmpeg -hide_banner \
+"$FFMPEG_BUILD_DIR/ffmpeg" -hide_banner \
   -i production/renders/explainer-video-promo-v1.mp4 \
   -af volumedetect -f null -
 
 # Extract the final encoded frame for visual review.
-/Users/mhuot/ffmpeg-build/ffmpeg -hide_banner -y \
+"$FFMPEG_BUILD_DIR/ffmpeg" -hide_banner -y \
   -ss 59.766 \
   -i production/renders/explainer-video-promo-v1.mp4 \
   -frames:v 1 final-frame.png

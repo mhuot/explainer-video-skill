@@ -22,7 +22,7 @@ method credit.
 ## Visual system
 
 - **Ground:** warm editorial paper with bold ink blocks, unlike the existing
-  dark green terminal promo and the light Microsoft-adjacent explainer template.
+  dark green terminal promo and the light neutral explainer template.
 - **Accent system:** saturated cobalt for the pipeline, vermilion for fragmented
   pain, and a restrained mint for measured/verified states.
 - **Subject motifs:** step chips, source-to-video pipeline, waveform ticks,

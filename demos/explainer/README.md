@@ -5,20 +5,27 @@ method turns a question into a measured, source-code video.
 
 ## Reproduce
 
-The commands below use the existing local toolchain and cached Kokoro model.
+The commands below use the environment variables set during installation.
+Set them to match your local paths if they differ from the defaults:
 
 ```bash
-cd /Users/mhuot/explainer-video-skill/demos/explainer
-export PATH="/Users/mhuot/ffmpeg-build:$PATH"
+export FFMPEG_BUILD_DIR="${FFMPEG_BUILD_DIR:-$HOME/ffbuild}"
+export HYPERFRAMES_DIR="${HYPERFRAMES_DIR:-$HOME/hyperframes}"
+export EXPLAINER_VIDEO_SKILL_DIR="${EXPLAINER_VIDEO_SKILL_DIR:-$HOME/explainer-video-skill}"
+```
+
+```bash
+cd "$EXPLAINER_VIDEO_SKILL_DIR/demos/explainer"
+export PATH="$FFMPEG_BUILD_DIR:$PATH"
 mkdir -p production/assets/audio production/renders video/assets/audio
-cp /Users/mhuot/hyperframes/node_modules/.bun/gsap@3.15.0/node_modules/gsap/dist/gsap.min.js \
-  video/assets/gsap.min.js
+curl -fL https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js \
+  -o video/assets/gsap.min.js
 PYTORCH_ENABLE_MPS_FALLBACK=1 \
-  /Users/mhuot/promo-video-skill/.venv/bin/python tools/tts_generate.py
+  .venv/bin/python tools/tts_generate.py
 cp production/assets/audio/*.wav video/assets/audio/
 
 cd video
-CLI="node /Users/mhuot/hyperframes/packages/cli/dist/cli.js"
+CLI="node $HYPERFRAMES_DIR/packages/cli/dist/cli.js"
 $CLI lint
 $CLI check
 $CLI snapshot \
@@ -38,4 +45,3 @@ ffmpeg -hide_banner -i "$OUT" -af volumedetect -f null -
 Inspect all seven midpoint PNGs before rendering. After QA, remove the
 transient snapshot directory; measured evidence is preserved in
 `production/checkpoints/self-review.md`.
-

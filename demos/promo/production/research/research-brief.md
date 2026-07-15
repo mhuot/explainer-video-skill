@@ -1,7 +1,7 @@
 # Research brief — explainer-video-skill promo
 
 Date: 2026-07-14  
-Subject: `/Users/mhuot/explainer-video-skill`  
+Subject: `explainer-video-skill`  
 Research boundary: authoritative local repository sources only.
 
 ## Audience and job
