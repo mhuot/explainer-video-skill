@@ -1,6 +1,9 @@
 ---
 name: explainer-video
 description: "Produce a 45–90 second narrated explainer video, how-it-works video, product walkthrough, solution preview, or customer-presentation video with local Kokoro TTS, HTML/CSS/GSAP scenes rendered by HyperFrames, FFmpeg encoding and QA, and auditable production gates. Use when asked to explain a concept or process as a video, make an explainer, preview a solution or demo, or create a narrated product tour."
+license: MIT
+metadata:
+  version: "1.0.0"
 ---
 
 # Explainer Video Production (local, offline-capable toolchain)
@@ -18,8 +21,9 @@ Written for **Scout**, **Claude Code**, **GitHub Copilot CLI**, and
 `install.sh`) — and any other agent that can read files and run shell
 commands. Do not assume a clone under `~`: set
 `EXPLAINER_VIDEO_SKILL_DIR` to the directory containing this `SKILL.md`.
-Its `templates/` directory has the TTS script, composition skeleton, and
-decision-log schema; `README.md` covers installation.
+Its `scripts/` directory has the TTS script; `assets/` has the composition
+skeleton and decision-log schema; `references/` has the method deep-dive
+(`method.md`) and the once-per-machine toolchain bootstrap (`install.md`).
 
 The production phase can run offline after packages, Kokoro weights, and
 HyperFrames' browser are cached. Installation, first model/browser use,
@@ -82,109 +86,29 @@ TTS ("E C G", "A I"); on-screen text uses real spelling.
 | Kokoro | PyPI package + cached `hexgrad/Kokoro-82M` | code **Apache 2.0**; weights **Apache 2.0** | Narration TTS → 24 kHz WAV per scene | Python 3.12 uv venv; `KPipeline(lang_code="a")`, voice `af_heart`, `speed=1.1` |
 | HyperFrames | `$HYPERFRAMES_DIR` | Apache 2.0 | HTML/CSS/GSAP composition → deterministic MP4 via headless Chrome | `node "$HYPERFRAMES_DIR/packages/cli/dist/cli.js" <cmd>` |
 | FFmpeg | `$FFMPEG_SOURCE_DIR`; binary in `$FFMPEG_BUILD_DIR` | GPL build (libx264) | Music synth (`aevalsrc`), encode, ffprobe QA, loudness, packaging | put build dir on `PATH` |
-| bun / Node ≥22 / Python 3.12 + uv / espeak-ng | — | various | build + runtimes | install with the platform commands below |
+| bun / Node ≥22 / Python 3.12 + uv / espeak-ng | — | various | build + runtimes | install per `references/install.md` |
 | gsap 3 | vendored `gsap.min.js` | GSAP standard license | scene animation | copy into `video/assets/` — never a CDN script (offline determinism) |
 
 The stage order, append-only decisions, approval gates, and self-review rules
 are fully specified here; OpenMontage is acknowledged as an influence but is
 not a required checkout or reference repository.
 
-## Environment bootstrap (once per machine)
-
-Choose one system-package block.
+## Environment check (once per machine)
 
 ```bash
-# macOS (Homebrew)
-brew install node uv x264 pkg-config nasm espeak-ng libsndfile
-npm install --global bun
-```
-
-```bash
-# Debian/Ubuntu Linux
-sudo apt-get update
-ASOUND_PACKAGE=libasound2
-apt-cache show libasound2t64 >/dev/null 2>&1 && ASOUND_PACKAGE=libasound2t64
-sudo apt-get install -y build-essential curl git pkg-config nasm yasm \
-  libx264-dev espeak-ng libespeak-ng1 libsndfile1 ca-certificates \
-  fonts-liberation "$ASOUND_PACKAGE" libatk-bridge2.0-0 libatk1.0-0 libcups2 \
-  libdbus-1-3 libdrm2 libgbm1 libgtk-3-0 libnspr4 libnss3 libx11-xcb1 \
-  libxcomposite1 libxdamage1 libxfixes3 libxkbcommon0 libxrandr2 xdg-utils
-curl -fsSL https://deb.nodesource.com/setup_22.x -o nodesource_setup.sh
-sudo -E bash nodesource_setup.sh
-rm nodesource_setup.sh
-sudo apt-get install -y nodejs
-curl -LsSf https://astral.sh/uv/install.sh | sh
-export PATH="$HOME/.local/bin:$PATH"
-curl -fsSL https://bun.sh/install | bash
-export PATH="$HOME/.bun/bin:$PATH"
-```
-
-On Linux, bun's user-local installer avoids the sudo that a global npm
-install would need. The additional Linux libraries support Puppeteer's
-headless Chrome; on Ubuntu 24.04 some names resolve to `t64` packages
-automatically.
-
-Clone HyperFrames and FFmpeg from their public repositories if absent
-(`--depth 1` is sufficient — both build from a snapshot):
-
-```bash
-git clone --depth 1 https://github.com/heygen-com/hyperframes "$HOME/hyperframes"
-git clone --depth 1 https://git.ffmpeg.org/ffmpeg.git "$HOME/FFmpeg"
-export HYPERFRAMES_DIR="${HYPERFRAMES_DIR:-$HOME/hyperframes}"
-export FFMPEG_SOURCE_DIR="${FFMPEG_SOURCE_DIR:-$HOME/FFmpeg}"
 export FFMPEG_BUILD_DIR="${FFMPEG_BUILD_DIR:-$HOME/ffbuild}"
-```
-
-Build FFmpeg on macOS:
-
-```bash
-mkdir -p "$FFMPEG_BUILD_DIR" && cd "$FFMPEG_BUILD_DIR"
-X264_PREFIX="$(brew --prefix x264)"
-PKG_CONFIG_PATH="$X264_PREFIX/lib/pkgconfig" "$FFMPEG_SOURCE_DIR/configure" \
-  --disable-doc --disable-debug --enable-videotoolbox \
-  --enable-gpl --enable-libx264 \
-  --extra-cflags="-I$X264_PREFIX/include" \
-  --extra-ldflags="-L$X264_PREFIX/lib"
-make -j"$(sysctl -n hw.ncpu)" ffmpeg ffprobe
-./ffmpeg -hide_banner -encoders | grep libx264
-```
-
-Build FFmpeg on Linux (do not use the macOS-only VideoToolbox/Homebrew
-flags):
-
-```bash
-mkdir -p "$FFMPEG_BUILD_DIR" && cd "$FFMPEG_BUILD_DIR"
-"$FFMPEG_SOURCE_DIR/configure" \
-  --disable-doc --disable-debug --enable-gpl --enable-libx264
-make -j"$(nproc)" ffmpeg ffprobe
-./ffmpeg -hide_banner -encoders | grep libx264
-```
-
-Build HyperFrames from its monorepo root and verify:
-
-```bash
-cd "$HYPERFRAMES_DIR"
-bun install
-bun run build
-test -f packages/cli/dist/cli.js
+export HYPERFRAMES_DIR="${HYPERFRAMES_DIR:-$HOME/hyperframes}"
 export PATH="$FFMPEG_BUILD_DIR:$PATH"
 node "$HYPERFRAMES_DIR/packages/cli/dist/cli.js" doctor
 ```
 
-`bun run build` may exit non-zero because the optional `sdk-playground`
-package fails on Node 22; that is harmless. `test -f
-packages/cli/dist/cli.js` is the real success gate.
-
-`doctor` may download Chrome on first use. FFmpeg, FFprobe, Node, and Chrome
-must all pass before production.
-
-**Scout / GitHub Copilot note:** builds and installs (`npm i`, `bun install`,
-`make`) sit in Scout's *Prompt* permission tier — approve them when asked, or
-pre-add allow patterns in **Settings → Permissions** (e.g. `node *`,
-`python *`, `$FFMPEG_BUILD_DIR/ffmpeg *`,
-`$FFMPEG_BUILD_DIR/ffprobe *`) so the render loop
-runs unattended. Keep the video project inside your Scout workspace
-directory so file tools cover it.
+FFmpeg, FFprobe, Node, and Chrome must all pass before production (other
+`doctor` rows are optional components this skill does not use). If any of
+the four fail, follow
+`$EXPLAINER_VIDEO_SKILL_DIR/references/install.md` — the full
+once-per-machine bootstrap: system packages (macOS/Linux), source-building
+FFmpeg with libx264, building the HyperFrames CLI, and agent permission
+tips. Do not load that file when `doctor` already passes.
 
 ## Project layout (one git repo per video, atomic commits)
 
@@ -200,7 +124,7 @@ directory so file tools cover it.
     checkpoints/self-review.md    # post-render evidence
     assets/audio/                 # Kokoro WAVs + durations.json
     renders/
-  tools/tts_generate.py           # from templates/, edit SCENE_NARRATIONS only
+  tools/tts_generate.py           # from scripts/, edit SCENE_NARRATIONS only
   video/
     index.html                    # the composition
     assets/gsap.min.js            # vendored
@@ -215,7 +139,7 @@ cd <project>
 uv venv --python 3.12 .venv
 uv pip install --python .venv/bin/python "kokoro>=0.9.4,<1" numpy soundfile
 mkdir -p tools
-cp "$EXPLAINER_VIDEO_SKILL_DIR/templates/tts_generate.py" tools/
+cp "$EXPLAINER_VIDEO_SKILL_DIR/scripts/tts_generate.py" tools/
 mkdir -p video/assets
 curl -fL https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js \
   -o video/assets/gsap.min.js
@@ -235,11 +159,11 @@ networked setup step; the vendored file is then used locally during renders.
 2. **Proposal** — arc + scene list + theme + duration; log decisions
    (`pipeline_selection`, `explainer_shape`, `voice_selection`, `music_selection`,
    `output_profile`, `approval_gates` — schema in
-   `$EXPLAINER_VIDEO_SKILL_DIR/templates/decision-log.json`). Changed
+   `$EXPLAINER_VIDEO_SKILL_DIR/assets/decision-log.json`). Changed
    decisions are APPENDED with the same (category, subject), never edited.
 3. **Script lock** — the words are final before any audio or visuals exist.
 4. **Narration + timing derivation** — copy
-   `$EXPLAINER_VIDEO_SKILL_DIR/templates/tts_generate.py`, edit
+   `$EXPLAINER_VIDEO_SKILL_DIR/scripts/tts_generate.py`, edit
    `SCENE_NARRATIONS`, run in the venv
    (`PYTORCH_ENABLE_MPS_FALLBACK=1 .venv/bin/python
    tools/tts_generate.py`; first run downloads Kokoro-82M weights, while
@@ -272,7 +196,7 @@ networked setup step; the vendored file is then used locally during renders.
    Include the WAV as a direct-root audio element on track 8 at
    `data-volume` 0.10–0.14.
 6. **Composition** — start from
-   `$EXPLAINER_VIDEO_SKILL_DIR/templates/composition-skeleton.html`. The
+   `$EXPLAINER_VIDEO_SKILL_DIR/assets/composition-skeleton.html`. The
    non-negotiables (each one is a debugged failure, not a preference):
    - every `<video>/<audio>` has an explicit, non-empty `id`; in HyperFrames,
      audio without one may play in a browser preview but renders SILENT

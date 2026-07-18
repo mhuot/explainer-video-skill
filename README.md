@@ -188,8 +188,9 @@ cd /path/to/explainer-video-skill
 ./install.sh --synced        # Scout, cloud-synced    → ~/.copilot/m-skills/explainer-video/
 ```
 
-Each target gets `SKILL.md`, `README.md`, `LICENSE`, `templates/`, and
-`docs/`, so resource references work even if the source clone is elsewhere.
+Each target gets `SKILL.md`, `README.md`, `LICENSE`, `scripts/`,
+`references/`, and `assets/`, so resource references work even if the
+source clone is elsewhere.
 Set `EXPLAINER_VIDEO_SKILL_DIR` to an installed directory when running
 template commands.
 
@@ -235,7 +236,7 @@ uv venv --python 3.12 .venv
 uv pip install --python .venv/bin/python "kokoro>=0.9.4,<1" numpy soundfile
 export EXPLAINER_VIDEO_SKILL_DIR="/path/to/installed-or-source/explainer-video-skill"
 mkdir -p tools
-cp "$EXPLAINER_VIDEO_SKILL_DIR/templates/tts_generate.py" tools/
+cp "$EXPLAINER_VIDEO_SKILL_DIR/scripts/tts_generate.py" tools/
 mkdir -p video/assets
 curl -fL https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js \
   -o video/assets/gsap.min.js
@@ -277,12 +278,12 @@ hosted templates or hand-crafted editing.
 
 | Path | What |
 | --- | --- |
-| [`SKILL.md`](SKILL.md) | the skill — agent frontmatter + the full production runbook |
+| [`skills/explainer-video/SKILL.md`](skills/explainer-video/SKILL.md) | the skill — agent frontmatter + the full production runbook |
 | [`install.sh`](install.sh) | installs the skill and resources locally or synced |
-| [`templates/tts_generate.py`](templates/tts_generate.py) | generic Kokoro TTS script — edit the scene narration list, run |
-| [`templates/composition-skeleton.html`](templates/composition-skeleton.html) | minimal seek-safe composition with an explainer step-scene and flow-diagram sample |
-| [`templates/decision-log.json`](templates/decision-log.json) | append-only decision-log schema |
-| [`docs/method.md`](docs/method.md) | the explainer method: narrative arc, visual grammar, script budgets |
+| [`skills/explainer-video/scripts/`](skills/explainer-video/scripts/) | Kokoro TTS script (edit the scene narration list, run) + package smoke test |
+| [`skills/explainer-video/assets/`](skills/explainer-video/assets/) | seek-safe composition skeleton and append-only decision-log schema |
+| [`skills/explainer-video/references/`](skills/explainer-video/references/) | the explainer method deep-dive and the once-per-machine toolchain bootstrap |
+| [`CHANGELOG.md`](CHANGELOG.md) | versioned release notes (version also in SKILL.md frontmatter) |
 | [demo repo](https://github.com/mhuot/explainer-video-skill-demo) | the self-explainer video: source, production record, and final render |
 
 ## External resources
