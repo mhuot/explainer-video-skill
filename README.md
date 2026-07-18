@@ -1,13 +1,12 @@
 # explainer-video-skill
 
-An agent skill — built for **[Microsoft Scout](https://learn.microsoft.com/en-us/microsoft-scout/overview)**,
-usable by any AI agent that reads files and runs shell commands — that
-produces **45–90 second narrated explainer videos locally**:
+An agent skill — usable by any AI agent that reads files and runs shell
+commands — that produces **45–90 second narrated explainer videos locally**:
 "how X works" concept explainers and solution-preview demos, with no cloud
 video services, no credits, no watermarks, and $0 per render.
 
-> **Method credit:** [**Idan Shimon**](https://github.com/idanshimon)
-> (Microsoft). His 58-second concept explainer was produced entirely by an
+> **Method credit:** [**Idan Shimon**](https://github.com/idanshimon).
+> His 58-second concept explainer was produced entirely by an
 > AI agent driving an open-source, code-based video stack —
 > OpenMontage, HyperFrames, Kokoro, FFmpeg — rendered locally without paid
 > cloud generation, at $0. His cardiology solution preview showed the companion use: a customer
@@ -57,11 +56,29 @@ rendering can run offline. Installation, first model use, optional online
 research, and optional feedback need network access. The workflow does not
 require telemetry or feedback submission.
 
+## What is a skill?
+
+A **skill** is a plain-text runbook (`SKILL.md`) that an AI agent discovers
+automatically and uses as a set of step-by-step instructions. No SDK, no
+plugin, no API key — it is just a markdown file the agent reads.
+
+Agents that natively discover directory-based skills:
+
+| Agent | Skill directory | Documentation |
+| --- | --- | --- |
+| **GitHub Copilot CLI** | `~/.copilot/skills/` | [Copilot CLI skills docs](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills) |
+| **Scout** (GitHub Copilot cloud agent) | `~/.copilot/skills/` or `~/.copilot/m-skills/` (cloud-synced) | [Scout docs](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/cloud-agent) |
+| **Claude Code** | `~/.claude/skills/` | [Claude Code docs](https://docs.anthropic.com/en/docs/claude-code/overview) |
+| **Google Gemini CLI** (Antigravity) | `~/.gemini/antigravity/global_skills/` | [Gemini CLI repo](https://github.com/google-gemini/gemini-cli) |
+
+Any other agent: point its instruction file at an installed `SKILL.md`.
+`install.sh` copies the right files to each location.
+
 ## Requirements
 
 | What | Why |
 | --- | --- |
-| Microsoft Scout (Frontier) — or another file+shell agent | the agent is the orchestrator |
+| Any file+shell agent (Scout, GitHub Copilot CLI, Claude Code, Gemini CLI) | the agent is the orchestrator |
 | macOS or Debian/Ubuntu Linux | both bootstrap paths are documented below |
 | Node.js ≥ 22, Python 3.12 + [uv](https://docs.astral.sh/uv/), bun | HyperFrames CLI + Kokoro TTS |
 | ~4 GB disk | FFmpeg build, Kokoro-82M weights (~330 MB), headless Chrome |
@@ -162,8 +179,8 @@ This install and HyperFrames' first browser launch require network access.
 cd /path/to/explainer-video-skill
 ./install.sh                 # all three agents below
 ./install.sh --claude        # Claude Code            → ~/.claude/skills/explainer-video/
-./install.sh --copilot       # GitHub Copilot CLI + Microsoft Scout → ~/.copilot/skills/explainer-video/
-./install.sh --antigravity   # Google Antigravity     → ~/.gemini/antigravity/global_skills/explainer-video/
+./install.sh --copilot       # GitHub Copilot CLI + Scout → ~/.copilot/skills/explainer-video/
+./install.sh --antigravity   # Google Gemini CLI      → ~/.gemini/antigravity/global_skills/explainer-video/
 ./install.sh --synced        # Scout, cloud-synced    → ~/.copilot/m-skills/explainer-video/
 ```
 
@@ -172,14 +189,12 @@ Each target gets `SKILL.md`, `README.md`, `LICENSE`, `templates/`, and
 Set `EXPLAINER_VIDEO_SKILL_DIR` to an installed directory when running
 template commands.
 
-All three agents discover directory-based skills automatically: Microsoft
-Scout and GitHub Copilot CLI from `~/.copilot/skills/`
-([Scout docs](https://learn.microsoft.com/en-us/microsoft-scout/use-microsoft-scout),
-[Copilot docs](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills)),
-Claude Code from `~/.claude/skills/`, and Google Antigravity from
-`~/.gemini/antigravity/global_skills/`. Other agents: point your instruction
-file at any installed `SKILL.md` — a plain-markdown runbook with exact
-commands.
+Agent discovery paths:
+
+- **Scout and GitHub Copilot CLI:** `~/.copilot/skills/` ([Copilot docs](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills))
+- **Claude Code:** `~/.claude/skills/` ([Claude Code docs](https://docs.anthropic.com/en/docs/claude-code/overview))
+- **Google Gemini CLI:** `~/.gemini/antigravity/global_skills/` ([Gemini CLI repo](https://github.com/google-gemini/gemini-cli))
+- **Other agents:** point your instruction file at any installed `SKILL.md`
 
 ### 6. Scout permissions (recommended)
 
@@ -218,7 +233,7 @@ export EXPLAINER_VIDEO_SKILL_DIR="/path/to/installed-or-source/explainer-video-s
 mkdir -p tools
 cp "$EXPLAINER_VIDEO_SKILL_DIR/templates/tts_generate.py" tools/
 mkdir -p video/assets
-curl -fL https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js \
+curl -fL https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js \
   -o video/assets/gsap.min.js
 ```
 
@@ -226,13 +241,13 @@ The final command vendors GSAP once; renders never load it from a CDN.
 
 ## Usage
 
-Ask Scout (or your agent):
+Ask your agent:
 
 > "Using the explainer-video skill, make a 60-second explainer of how our
 > anomaly-detection pipeline works."
 
 > "Create a solution-preview video of the cardiology dashboard for the
-> customer meeting — calm pacing, Microsoft blue, narration only."
+> customer meeting — calm pacing, blue accent, narration only."
 
 The agent researches the subject, proposes the arc and theme, locks a script,
 synthesizes narration with Kokoro, derives all timing from the measured
@@ -241,11 +256,24 @@ validates, renders, and self-reviews. A complete brief (subject, audience,
 duration, tone) runs end-to-end; a thin brief gets one clarifying pass at the
 outline stage.
 
+## How this compares to other approaches
+
+| Approach | Fast start | No code required | Auditable source | Local after setup | Notes |
+| --- | :---: | :---: | :---: | :---: | --- |
+| **Cloud / template video services** (Synthesia, Runway, Lumen5) | ✓ | ✓ | — | usually no | Best for one-click starts and non-technical editors |
+| **Traditional editor + manual VO** (Premiere, DaVinci) | — | ✓ | project-dependent | ✓ | Deep hand-crafted control; timing is manual |
+| **explainer-video-skill** | — | — | ✓ | ✓ (after caches) | Requires Node, Python, and code authoring; not one-click |
+
+The defensible advantage of this skill is a **measured, code-based, locally
+renderable, auditable workflow** — any scene, word, color, or timing stays
+editable source and re-renders in minutes. It is not a replacement for
+hosted templates or hand-crafted editing.
+
 ## What's in this repo
 
 | Path | What |
 | --- | --- |
-| [`SKILL.md`](SKILL.md) | the skill — Scout-format frontmatter + the full production runbook |
+| [`SKILL.md`](SKILL.md) | the skill — agent frontmatter + the full production runbook |
 | [`install.sh`](install.sh) | installs the skill and resources locally or synced |
 | [`templates/tts_generate.py`](templates/tts_generate.py) | generic Kokoro TTS script — edit the scene narration list, run |
 | [`templates/composition-skeleton.html`](templates/composition-skeleton.html) | minimal seek-safe composition with an explainer step-scene and flow-diagram sample |
@@ -254,6 +282,20 @@ outline stage.
 | [`demos/README.md`](demos/README.md) | cross-dogfood matrix and compact demo index |
 | [`demos/explainer/`](demos/explainer/) | explainer-produced teaching video: source, production record, and final render |
 | [`demos/promo/`](demos/promo/) | promo-produced promotional video: source, production record, and final render |
+
+## External resources
+
+| Resource | Link |
+| --- | --- |
+| **HyperFrames** — HTML/CSS/GSAP → MP4 renderer | [github.com/heygen-com/hyperframes](https://github.com/heygen-com/hyperframes) |
+| **Kokoro** — local TTS model | [PyPI: kokoro](https://pypi.org/project/kokoro/) · [Model weights: hexgrad/Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M) |
+| **FFmpeg** — video encoding and audio processing | [ffmpeg.org](https://ffmpeg.org/) |
+| **GSAP** — animation library (vendored for offline rendering) | [gsap.com](https://gsap.com/) |
+| **uv** — fast Python package and environment manager | [docs.astral.sh/uv](https://docs.astral.sh/uv/) |
+| **bun** — fast JavaScript runtime / package manager | [bun.sh](https://bun.sh/) |
+| **GitHub Copilot CLI skills** | [docs.github.com](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/add-skills) |
+| **Claude Code** | [docs.anthropic.com](https://docs.anthropic.com/en/docs/claude-code/overview) |
+| **Google Gemini CLI** | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
 
 ## Tool licenses
 

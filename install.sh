@@ -3,8 +3,8 @@
 #
 #   ./install.sh                 → all three agent targets below
 #   ./install.sh --claude        → ~/.claude/skills/explainer-video/         (Claude Code)
-#   ./install.sh --copilot       → ~/.copilot/skills/explainer-video/        (GitHub Copilot CLI + Microsoft Scout)
-#   ./install.sh --antigravity   → ~/.gemini/antigravity/global_skills/explainer-video/  (Google Antigravity)
+#   ./install.sh --copilot       → ~/.copilot/skills/explainer-video/        (GitHub Copilot CLI + Scout)
+#   ./install.sh --antigravity   → ~/.gemini/antigravity/global_skills/explainer-video/  (Google Gemini CLI)
 #   ./install.sh --synced        → ~/.copilot/m-skills/explainer-video/      (Scout, cloud-synced across devices)
 #
 # Flags may be combined.

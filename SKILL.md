@@ -5,7 +5,7 @@ description: "Produce a 45–90 second narrated explainer video, how-it-works vi
 
 # Explainer Video Production (local, offline-capable toolchain)
 
-Method credit: **Idan Shimon** (Microsoft, github.com/idanshimon). His
+Method credit: **Idan Shimon** (github.com/idanshimon). His
 58-second concept explainer — produced entirely by an AI agent driving
 OpenMontage, HyperFrames, Kokoro, and FFmpeg locally at $0 — defined this
 format, and his cardiology solution preview showed the companion use: a
@@ -13,8 +13,8 @@ video demo of a product dashboard built as source code.
 The operating premise is his: **the entire video is source code — any scene,
 word, color, or timing is a one-line edit and a re-render.**
 
-Written for **Microsoft Scout**, **Claude Code**, **GitHub Copilot CLI**, and
-**Google Antigravity** (all four discover this skill natively via
+Written for **Scout**, **Claude Code**, **GitHub Copilot CLI**, and
+**Google Gemini CLI** (all four discover this skill natively via
 `install.sh`) — and any other agent that can read files and run shell
 commands. Do not assume a clone under `~`: set
 `EXPLAINER_VIDEO_SKILL_DIR` to the directory containing this `SKILL.md`.
@@ -66,8 +66,8 @@ TTS ("E C G", "A I"); on-screen text uses real spelling.
 - **Data motion** — animate the *numbers* (bar widths via `scaleX`, gauge
   arcs via `strokeDashoffset`); never fake it with a static screenshot.
 - **Design tokens** — all theme in `:root` CSS vars. Default explainer
-  theme: light or dark neutral ground, ONE accent (Microsoft-adjacent
-  `#0078d4` blue works well for solution previews), a sans stack
+  theme: light or dark neutral ground, ONE accent (a clear
+  blue such as `#0078d4` works well for solution previews), a sans stack
   (`"Segoe UI", system-ui, sans-serif`) for prose + a mono for data/code.
   `lint` prints a `system_font_will_alias` info naming the exact bundled
   fonts the renderer substitutes — read it and keep preview/render
@@ -169,7 +169,7 @@ node "$HYPERFRAMES_DIR/packages/cli/dist/cli.js" doctor
 `doctor` may download Chrome on first use. FFmpeg, FFprobe, Node, and Chrome
 must all pass before production.
 
-**Microsoft Scout note:** builds and installs (`npm i`, `bun install`,
+**Scout / GitHub Copilot note:** builds and installs (`npm i`, `bun install`,
 `make`) sit in Scout's *Prompt* permission tier — approve them when asked, or
 pre-add allow patterns in **Settings → Permissions** (e.g. `node *`,
 `python *`, `$FFMPEG_BUILD_DIR/ffmpeg *`,
@@ -208,7 +208,7 @@ uv pip install --python .venv/bin/python "kokoro>=0.9.4,<1" numpy soundfile
 mkdir -p tools
 cp "$EXPLAINER_VIDEO_SKILL_DIR/templates/tts_generate.py" tools/
 mkdir -p video/assets
-curl -fL https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js \
+curl -fL https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js \
   -o video/assets/gsap.min.js
 ```
 
@@ -310,7 +310,7 @@ networked setup step; the vendored file is then used locally during renders.
    `max_volume` is below 0 dB, then write
    `production/checkpoints/self-review.md`.
 9. **Packaging** — Teams/SharePoint/email preview: the H.264+AAC master
-   plays everywhere in the Microsoft ecosystem as-is. For YouTube/Stream
+   plays everywhere on most video platforms and players as-is. For YouTube/Stream
    publication, make a derivative: stream-copy video, two-pass `loudnorm`
    audio to −14 LUFS / −1 dBTP, `-movflags +faststart`. First measure with
    JSON output:
