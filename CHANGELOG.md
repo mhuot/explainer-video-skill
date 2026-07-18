@@ -1,5 +1,25 @@
 # Changelog
 
+## Unreleased
+
+- GitHub Actions CI: shellcheck + smoke test on Ubuntu and macOS, with an
+  install → `--version` → `--uninstall` lifecycle exercise and
+  mutual-exclusion guard test.
+- `install.sh` gains `--version` (source vs installed comparison) and
+  `--uninstall` (combinable with target flags; mutually exclusive with
+  `--version`).
+- README badges: CI status, MIT license (static — the annotated LICENSE
+  defeats GitHub auto-detection), and version from the latest git tag.
+- `assets/spatial-components.html`: layout-only templates (step chip, flow
+  diagram, annotated UI mockup) — spatial structure only, timing still
+  derived from measured audio.
+- SKILL.md: explicit three-point snapshot QA checklist (contrast, overlap,
+  composition) for vision-capable agents, with `--describe` as the optional
+  networked alternative.
+- `AGENTS.md`: contributor instructions for AI agents — verification gates,
+  branch hygiene, resource-integration checklist, release procedure, and
+  the design principles reviews enforce.
+
 ## 1.0.0 — 2026-07-18
 
 First public release.

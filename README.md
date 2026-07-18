@@ -299,6 +299,7 @@ hosted templates or hand-crafted editing.
 | [`skills/explainer-video/assets/`](skills/explainer-video/assets/) | seek-safe composition skeleton and append-only decision-log schema |
 | [`skills/explainer-video/references/`](skills/explainer-video/references/) | the explainer method deep-dive and the once-per-machine toolchain bootstrap |
 | [`CHANGELOG.md`](CHANGELOG.md) | versioned release notes (version also in SKILL.md frontmatter) |
+| [`AGENTS.md`](AGENTS.md) | how AI agents should contribute: verification gates, integration checklist, design principles |
 | [demo repo](https://github.com/mhuot/explainer-video-skill-demo) | the self-explainer video: source, production record, and final render |
 
 ## External resources
