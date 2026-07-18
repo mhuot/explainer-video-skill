@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Added community and security infrastructure (issue templates, PR template, SECURITY.md).
 - GitHub Actions CI: shellcheck + smoke test on Ubuntu and macOS, with an
   install → `--version` → `--uninstall` lifecycle exercise and
   mutual-exclusion guard test.

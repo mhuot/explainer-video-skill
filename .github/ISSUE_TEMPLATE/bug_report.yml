@@ -1,0 +1,51 @@
+name: Bug Report
+description: Create a report to help us improve
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: input
+    id: os
+    attributes:
+      label: OS Version
+      description: macOS or Ubuntu version
+    validations:
+      required: true
+  - type: dropdown
+    id: agent
+    attributes:
+      label: Agent Used
+      options:
+        - Scout
+        - Copilot CLI
+        - Claude Code
+        - Gemini CLI
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: install_method
+    attributes:
+      label: Install Method
+      description: install.sh flags or Claude Code plugin
+    validations:
+      required: true
+  - type: textarea
+    id: version_output
+    attributes:
+      label: install.sh --version output
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: smoke_test_output
+    attributes:
+      label: smoke_test.sh output
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: failure_stage
+    attributes:
+      label: What failed at which stage of the production pipeline?
+    validations:
+      required: true

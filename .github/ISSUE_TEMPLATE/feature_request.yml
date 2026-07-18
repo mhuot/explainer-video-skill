@@ -1,0 +1,27 @@
+name: Feature Request
+description: Suggest an idea for this project
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: A clear and concise description of what the problem is.
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_change
+    attributes:
+      label: Proposed Change
+      description: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+  - type: checkboxes
+    id: design_principles
+    attributes:
+      label: Design Principles
+      description: Confirm that your request respects the design principles in AGENTS.md.
+      options:
+        - label: I confirm this request respects the design principles in AGENTS.md (derived timing, no required cloud services, no wrapper abstractions).
+          required: true
