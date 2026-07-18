@@ -124,6 +124,7 @@ install_to_target() {
   install -m 0755 "${SKILL_PACKAGE_DIR}/scripts/smoke_test.sh" "${target_dir}/scripts/"
   install -m 0644 \
     "${SKILL_PACKAGE_DIR}/assets/composition-skeleton.html" \
+    "${SKILL_PACKAGE_DIR}/assets/spatial-components.html" \
     "${SKILL_PACKAGE_DIR}/assets/decision-log.json" \
     "${target_dir}/assets/"
   install -m 0644 \

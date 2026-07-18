@@ -59,6 +59,8 @@ TTS ("E C G", "A I"); on-screen text uses real spelling.
 
 ## Visual grammar (explainer-specific)
 
+See `$EXPLAINER_VIDEO_SKILL_DIR/assets/spatial-components.html` for pure layout templates of these elements. **Rule:** copy ONLY their spatial CSS/HTML structure; never copy timing. All timing must be derived from your measured audio.
+
 - **Step chips** — a numbered chip (`01`, `02`, `03`) anchors each
   how-it-works scene; consistent position, animated per-scene.
 - **Flow diagrams** — SVG nodes + edges; draw edges with `stroke-dasharray`
@@ -219,8 +221,15 @@ networked setup step; the vendored file is then used locally during renders.
    $CLI lint
    $CLI check
    $CLI snapshot --at <every scene midpoint>
-   # then actually LOOK at each frame against the scene plan
    ```
+   
+   **Snapshot QA Checklist:** Use your vision capabilities (or the `--describe` hook) to review each extracted frame:
+   - [ ] **Contrast**: Is all text readable against its background?
+   - [ ] **Overlap**: Does text fit within its container without clipping or overlapping other elements?
+   - [ ] **Composition**: Are the step chips, flow nodes, and UI mockups positioned cleanly?
+   
+   Fix any issues in the HTML/CSS before proceeding.
+
 8. **Render + self-review** —
 
    ```bash

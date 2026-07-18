@@ -18,6 +18,7 @@ for required_file in \
   SKILL.md \
   scripts/tts_generate.py \
   assets/composition-skeleton.html \
+  assets/spatial-components.html \
   assets/decision-log.json \
   references/method.md \
   references/install.md; do

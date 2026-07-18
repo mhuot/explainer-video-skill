@@ -25,8 +25,16 @@ jobs:
 
   smoke-test:
     name: Smoke test
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+      - name: Test install.sh
+        run: |
+          mkdir -p ~/.claude/skills ~/.copilot/skills ~/.gemini/antigravity/global_skills ~/.copilot/m-skills
+          bash install.sh
+          bash install.sh --version
       - name: Run smoke test
         run: bash skills/explainer-video/scripts/smoke_test.sh
