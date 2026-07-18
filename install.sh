@@ -34,8 +34,8 @@ TARGETS=()
 
 for arg in "$@"; do
   case "${arg}" in
-    --uninstall)   MODE=uninstall ;;
-    --version)     MODE=version ;;
+    --uninstall)   [[ "${MODE}" == version ]] && MODE_SET=conflict; MODE=uninstall ;;
+    --version)     [[ "${MODE}" == uninstall ]] && MODE_SET=conflict; MODE=version ;;
     --claude)      TARGETS+=("${CLAUDE_TARGET}") ;;
     --copilot)     TARGETS+=("${COPILOT_TARGET}") ;;
     --antigravity) TARGETS+=("${ANTIGRAVITY_TARGET}") ;;
@@ -46,6 +46,11 @@ for arg in "$@"; do
       ;;
   esac
 done
+
+if [[ "${MODE_SET:-}" == "conflict" ]]; then
+  echo "Error: --version and --uninstall are mutually exclusive." >&2
+  exit 2
+fi
 
 # Default to all three standard targets when no target flag is given (and not --version).
 if [[ "${MODE}" != version && ${#TARGETS[@]} -eq 0 ]]; then
@@ -71,7 +76,7 @@ if [[ "${MODE}" == version ]]; then
   src_ver="$(read_version "${SKILL_PACKAGE_DIR}/SKILL.md")"
   printf 'source:  %s\n' "${src_ver}"
   for target_dir in "${DEFAULT_TARGETS[@]}" "${SYNCED_TARGET}"; do
-    label="${target_dir/#"${HOME}"/"~"}"
+    label="${target_dir/#${HOME}/~}"
     if [[ -f "${target_dir}/SKILL.md" ]]; then
       inst_ver="$(read_version "${target_dir}/SKILL.md")"
       if [[ "${inst_ver}" == "${src_ver}" ]]; then
@@ -91,7 +96,7 @@ fi
 # ---------------------------------------------------------------------------
 uninstall_from_target() {
   local target_dir="$1"
-  local label="${target_dir/#"${HOME}"/"~"}"
+  local label="${target_dir/#${HOME}/~}"
   if [[ -d "${target_dir}" ]]; then
     rm -rf "${target_dir}"
     echo "Uninstalled: ${label}"
