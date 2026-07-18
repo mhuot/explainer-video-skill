@@ -47,8 +47,8 @@ Script budget ≈ 2.55 words/second at Kokoro `af_heart` speed 1.1:
    HTML: stat tiles whose numbers matter, charts whose bars/arcs animate
    (`scaleX`, `strokeDashoffset`), tables that populate row by row, a
    highlight ring that guides the eye. Never a static screenshot.
-4. **One accent color** on a neutral ground; `#0078d4` suits
-   A clear blue (`#0078d4`) suits customer-facing previews. All tokens in `:root` CSS vars — a re-skin
+4. **One accent color** on a neutral ground; a clear blue (`#0078d4`)
+   suits customer-facing previews. All tokens in `:root` CSS vars — a re-skin
    is a five-line edit.
 5. **Calm motion** — eased entrances, 0.4–0.6 s scene padding, no glitch
    effects. The subject is the star, not the animation.
