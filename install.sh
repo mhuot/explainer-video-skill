@@ -71,5 +71,7 @@ done
 echo "For portable template commands, set EXPLAINER_VIDEO_SKILL_DIR to an installed directory, e.g.:"
 printf '  export EXPLAINER_VIDEO_SKILL_DIR=%q\n' "${TARGETS[0]}"
 echo "Verify tooling with:"
+# shellcheck disable=SC2016  # intentional: print literal $VAR syntax for the user to copy
 echo '  export PATH="${FFMPEG_BUILD_DIR:-$HOME/ffbuild}:$PATH"'
+# shellcheck disable=SC2016  # intentional: print literal $VAR syntax for the user to copy
 echo '  node "${HYPERFRAMES_DIR:-$HOME/hyperframes}/packages/cli/dist/cli.js" doctor'
