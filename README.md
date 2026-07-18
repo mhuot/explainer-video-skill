@@ -186,6 +186,9 @@ cd /path/to/explainer-video-skill
 ./install.sh --copilot       # GitHub Copilot CLI + Scout → ~/.copilot/skills/explainer-video/
 ./install.sh --antigravity   # Google Gemini CLI      → ~/.gemini/antigravity/global_skills/explainer-video/
 ./install.sh --synced        # Scout, cloud-synced    → ~/.copilot/m-skills/explainer-video/
+
+./install.sh --version       # print source version; compare against installed copies
+./install.sh --uninstall     # remove from the three default targets (combinable with target flags)
 ```
 
 Each target gets `SKILL.md`, `README.md`, `LICENSE`, `scripts/`,
