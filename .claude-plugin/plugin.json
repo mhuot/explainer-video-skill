@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "explainer-video",
+  "displayName": "Explainer Video",
+  "version": "1.0.0",
+  "description": "Produce 45–90 second narrated explainer videos locally: Kokoro TTS, HTML/CSS/GSAP scenes rendered by HyperFrames, FFmpeg encoding and QA, auditable production gates.",
+  "author": {
+    "name": "Mike Huot",
+    "url": "https://github.com/mhuot"
+  },
+  "repository": "https://github.com/mhuot/explainer-video-skill",
+  "license": "MIT",
+  "keywords": ["video", "explainer", "tts", "kokoro", "hyperframes", "ffmpeg"]
+}

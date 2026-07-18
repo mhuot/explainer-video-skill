@@ -1,0 +1,14 @@
+{
+  "name": "explainer-video-skill",
+  "owner": {
+    "name": "Mike Huot"
+  },
+  "description": "Local, offline-capable explainer-video production skill",
+  "plugins": [
+    {
+      "name": "explainer-video",
+      "source": "./",
+      "description": "Produce 45–90 second narrated explainer videos locally with Kokoro TTS, HyperFrames rendering, and FFmpeg QA."
+    }
+  ]
+}

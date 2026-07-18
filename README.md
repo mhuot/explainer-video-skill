@@ -191,6 +191,14 @@ cd /path/to/explainer-video-skill
 Each target gets `SKILL.md`, `README.md`, `LICENSE`, `scripts/`,
 `references/`, and `assets/`, so resource references work even if the
 source clone is elsewhere.
+
+Claude Code users can install it as a plugin instead of running
+`install.sh` — the repo is its own plugin marketplace:
+
+```
+/plugin marketplace add mhuot/explainer-video-skill
+/plugin install explainer-video@explainer-video-skill
+```
 Set `EXPLAINER_VIDEO_SKILL_DIR` to an installed directory when running
 template commands.
 
