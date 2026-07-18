@@ -1,5 +1,9 @@
 # explainer-video-skill
 
+[![CI](https://github.com/mhuot/explainer-video-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/mhuot/explainer-video-skill/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/github/license/mhuot/explainer-video-skill)](LICENSE)
+[![Version](https://img.shields.io/github/v/tag/mhuot/explainer-video-skill?label=version)](CHANGELOG.md)
+
 An agent skill — usable by any AI agent that reads files and runs shell
 commands — that produces **45–90 second narrated explainer videos locally**:
 "how X works" concept explainers and solution-preview demos, with no cloud
