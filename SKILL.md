@@ -208,7 +208,7 @@ uv pip install --python .venv/bin/python "kokoro>=0.9.4,<1" numpy soundfile
 mkdir -p tools
 cp "$EXPLAINER_VIDEO_SKILL_DIR/templates/tts_generate.py" tools/
 mkdir -p video/assets
-curl -fL https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js \
+curl -fL https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js \
   -o video/assets/gsap.min.js
 ```
 
