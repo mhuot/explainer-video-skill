@@ -36,5 +36,8 @@ jobs:
           mkdir -p ~/.claude/skills ~/.copilot/skills ~/.gemini/antigravity/global_skills ~/.copilot/m-skills
           bash install.sh
           bash install.sh --version
+          bash install.sh --uninstall
+          bash install.sh --version | grep -q "not installed" || { echo "uninstall left copies behind"; exit 1; }
+          ! bash install.sh --version --uninstall
       - name: Run smoke test
         run: bash skills/explainer-video/scripts/smoke_test.sh
