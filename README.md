@@ -15,18 +15,14 @@ video services, no credits, no watermarks, and $0 per render.
 > one-line edit and a re-render. Iteration is minutes, not days."* This skill
 > packages that method.
 
-## Dogfood demos: teaching and promotion
+## Demo: the skill explaining itself
 
-**Promo sells; explainer teaches.** These two productions use both skills on
-the same subject so the difference is concrete:
-
-| Job | Produced with | Watch | Source and reproduction |
-| --- | --- | --- | --- |
-| Teach how `explainer-video` works | `explainer-video` | [73.8s final MP4](demos/explainer/production/renders/explainer-video-self-explainer-v1.mp4) | [`demos/explainer/`](demos/explainer/) |
-| Promote `explainer-video` | `promo-video` | [59.8s final MP4](demos/promo/production/renders/explainer-video-promo-v1.mp4) | [`demos/promo/`](demos/promo/) |
-
-See the [demo matrix and source index](demos/README.md) for both production
-records and the companion `promo-video-skill` row.
+The skill's dogfood production — a 73.8-second self-explainer made with this
+skill — lives in its own repo,
+[**explainer-video-skill-demo**](https://github.com/mhuot/explainer-video-skill-demo):
+the final MP4 plus the complete auditable production record (locked script,
+measured timings, decision log, QA self-review, and the one-file HTML
+composition), with exact reproduction commands.
 
 ## What it produces
 
@@ -287,9 +283,7 @@ hosted templates or hand-crafted editing.
 | [`templates/composition-skeleton.html`](templates/composition-skeleton.html) | minimal seek-safe composition with an explainer step-scene and flow-diagram sample |
 | [`templates/decision-log.json`](templates/decision-log.json) | append-only decision-log schema |
 | [`docs/method.md`](docs/method.md) | the explainer method: narrative arc, visual grammar, script budgets |
-| [`demos/README.md`](demos/README.md) | cross-dogfood matrix and compact demo index |
-| [`demos/explainer/`](demos/explainer/) | explainer-produced teaching video: source, production record, and final render |
-| [`demos/promo/`](demos/promo/) | promo-produced promotional video: source, production record, and final render |
+| [demo repo](https://github.com/mhuot/explainer-video-skill-demo) | the self-explainer video: source, production record, and final render |
 
 ## External resources
 
