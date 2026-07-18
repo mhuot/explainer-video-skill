@@ -115,16 +115,21 @@ rm nodesource_setup.sh
 sudo apt-get install -y nodejs
 curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
-npm install --global bun
+curl -fsSL https://bun.sh/install | bash
+export PATH="$HOME/.bun/bin:$PATH"
 ```
 
-The additional Linux libraries support Puppeteer's headless Chrome.
+On Linux, bun's user-local installer avoids the sudo that a global npm
+install would need. The additional Linux libraries support Puppeteer's
+headless Chrome; on Ubuntu 24.04 some names resolve to `t64` packages
+automatically.
 
-Clone HyperFrames and FFmpeg from their public repositories if absent:
+Clone HyperFrames and FFmpeg from their public repositories if absent
+(`--depth 1` is sufficient — both build from a snapshot):
 
 ```bash
-git clone https://github.com/heygen-com/hyperframes "$HOME/hyperframes"
-git clone https://git.ffmpeg.org/ffmpeg.git "$HOME/FFmpeg"
+git clone --depth 1 https://github.com/heygen-com/hyperframes "$HOME/hyperframes"
+git clone --depth 1 https://git.ffmpeg.org/ffmpeg.git "$HOME/FFmpeg"
 export HYPERFRAMES_DIR="${HYPERFRAMES_DIR:-$HOME/hyperframes}"
 export FFMPEG_SOURCE_DIR="${FFMPEG_SOURCE_DIR:-$HOME/FFmpeg}"
 export FFMPEG_BUILD_DIR="${FFMPEG_BUILD_DIR:-$HOME/ffbuild}"
@@ -165,6 +170,10 @@ test -f packages/cli/dist/cli.js
 export PATH="$FFMPEG_BUILD_DIR:$PATH"
 node "$HYPERFRAMES_DIR/packages/cli/dist/cli.js" doctor
 ```
+
+`bun run build` may exit non-zero because the optional `sdk-playground`
+package fails on Node 22; that is harmless. `test -f
+packages/cli/dist/cli.js` is the real success gate.
 
 `doctor` may download Chrome on first use. FFmpeg, FFprobe, Node, and Chrome
 must all pass before production.
@@ -354,6 +363,8 @@ networked setup step; the vendored file is then used locally during renders.
 | --- | --- |
 | render: `Unrecognized option 'preset'` | ffmpeg built without libx264 → rebuild `--enable-gpl --enable-libx264` |
 | CLI build: cannot resolve `@hyperframes/core` | built `packages/cli` alone → root `bun run build` |
+| root `bun run build` exits 1 at `sdk-playground` | upstream Node 22 issue → harmless; gate on `test -f packages/cli/dist/cli.js` |
+| TTS: `✘ No package installer found` (spaCy) | uv venvs ship without pip → harmless; narration generates correctly |
 | `bun` missing after brew install | `npm i -g bun` |
 | audio silent in render, fine in preview | `<audio>` missing `id` |
 | element visible before its entrance when scrubbing | CSS transform + `.to()` → `fromTo` |

@@ -88,15 +88,16 @@ Any other agent: point its instruction file at an installed `SKILL.md`.
 ### 1. Clone the required source tools
 
 ```bash
-git clone https://github.com/heygen-com/hyperframes "$HOME/hyperframes"
-git clone https://git.ffmpeg.org/ffmpeg.git "$HOME/FFmpeg"
+git clone --depth 1 https://github.com/heygen-com/hyperframes "$HOME/hyperframes"
+git clone --depth 1 https://git.ffmpeg.org/ffmpeg.git "$HOME/FFmpeg"
 export HYPERFRAMES_DIR="${HYPERFRAMES_DIR:-$HOME/hyperframes}"
 export FFMPEG_SOURCE_DIR="${FFMPEG_SOURCE_DIR:-$HOME/FFmpeg}"
 export FFMPEG_BUILD_DIR="${FFMPEG_BUILD_DIR:-$HOME/ffbuild}"
 ```
 
-Clone or download this repository from the URL where you found it; it may
-live anywhere. OpenMontage inspired the governance conventions, but no
+`--depth 1` is enough — both tools build from a snapshot, and the FFmpeg
+history alone is over a gigabyte. Clone or download this repository from
+the URL where you found it; it may live anywhere. OpenMontage inspired the governance conventions, but no
 reference or private repository is required to use the skill. Kokoro is
 installed from PyPI in the project environment rather than from a source
 checkout.
@@ -127,12 +128,16 @@ rm nodesource_setup.sh
 sudo apt-get install -y nodejs
 curl -LsSf https://astral.sh/uv/install.sh | sh
 export PATH="$HOME/.local/bin:$PATH"
-npm install --global bun
+curl -fsSL https://bun.sh/install | bash
+export PATH="$HOME/.bun/bin:$PATH"
 ```
 
+On stock Ubuntu, `npm install --global bun` would need sudo (npm's global
+prefix is `/usr`), so Linux uses bun's user-local installer instead.
 Confirm `node --version` is 22 or newer and `uv --version` succeeds (start a
 new shell after the uv installer if needed). The additional Linux libraries
-support Puppeteer's headless Chrome.
+support Puppeteer's headless Chrome. On Ubuntu 24.04 some listed library
+names resolve to renamed `t64` packages automatically — that is expected.
 
 ### 3. Build FFmpeg with libx264
 
@@ -171,6 +176,9 @@ bun run build
 test -f packages/cli/dist/cli.js
 ```
 
+`bun run build` may exit non-zero because the optional `sdk-playground`
+package fails to build on Node 22 — that is harmless. The `test -f` line is
+the real gate: if `packages/cli/dist/cli.js` exists, the CLI is ready.
 This install and HyperFrames' first browser launch require network access.
 
 ### 5. Install the skill
@@ -315,7 +323,9 @@ hosted templates or hand-crafted editing.
 | --- | --- |
 | render: `Unrecognized option 'preset'` | rebuild FFmpeg with `--enable-gpl --enable-libx264` |
 | CLI build: cannot resolve `@hyperframes/core` | build from the monorepo root: `bun run build` |
+| `bun run build` exits 1 at `sdk-playground` | harmless (upstream Node 22 issue); proceed if `packages/cli/dist/cli.js` exists |
 | `bun` not found after brew install | `npm i -g bun` |
+| TTS prints `✘ No package installer found` (spaCy) | harmless in uv-created venvs (no pip); narration still generates correctly |
 | HyperFrames audio plays in a browser preview but renders silently | give every `<audio>` an explicit, non-empty, unique `id` (and every `<video>` an `id`) |
 | element visible before its entrance on scrub | use GSAP `fromTo`, no CSS `transform:` initial states |
 | black frames despite clean preview | background belongs on a full-bleed child, not the root |
