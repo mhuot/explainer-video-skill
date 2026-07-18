@@ -1,7 +1,7 @@
 # explainer-video-skill
 
 [![CI](https://github.com/mhuot/explainer-video-skill/actions/workflows/ci.yml/badge.svg)](https://github.com/mhuot/explainer-video-skill/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/github/license/mhuot/explainer-video-skill)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Version](https://img.shields.io/github/v/tag/mhuot/explainer-video-skill?label=version)](CHANGELOG.md)
 
 An agent skill — usable by any AI agent that reads files and runs shell
