@@ -19,14 +19,19 @@ video services, no credits, no watermarks, and $0 per render.
 > one-line edit and a re-render. Iteration is minutes, not days."* This skill
 > packages that method.
 
-## Demo: the skill explaining itself
+## Demos
 
-The skill's dogfood production — a 73.8-second self-explainer made with this
-skill — lives in its own repo,
-[**explainer-video-skill-demo**](https://github.com/mhuot/explainer-video-skill-demo):
-the final MP4 plus the complete auditable production record (locked script,
-measured timings, decision log, QA self-review, and the one-file HTML
-composition), with exact reproduction commands.
+Two complete productions, each with its full auditable record (locked
+script, measured timings, decision log, QA self-review, one-file HTML
+composition):
+
+- [**explainer-video-skill-demo**](https://github.com/mhuot/explainer-video-skill-demo)
+  — the skill explaining itself (73.8 s).
+- [**disc-golf-explainer-demo**](https://github.com/mhuot/disc-golf-explainer-demo)
+  — how disc golf works (66.1 s), built with the skill's Claude Design
+  component library; doubles as a **teaching repo** with graded
+  edit-after-creation exercises (re-skin → move a beat → scoped re-derive
+  → full timing re-derivation).
 
 ## What it produces
 

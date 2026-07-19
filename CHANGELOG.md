@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Second demo:
+  [disc-golf-explainer-demo](https://github.com/mhuot/disc-golf-explainer-demo)
+  — 66.1 s disc golf explainer produced with the skill and its design-system
+  components; includes graded edit-after-creation teaching exercises.
+
 - Added community and security infrastructure (issue templates, PR template, SECURITY.md).
 - GitHub Actions CI: shellcheck + smoke test on Ubuntu and macOS, with an
   install → `--version` → `--uninstall` lifecycle exercise and
