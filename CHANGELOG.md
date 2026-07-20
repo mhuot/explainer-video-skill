@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Windows guidance: `references/install.md` gains a **Windows (WSL2)**
+  section (WSL2 Ubuntu + the existing Debian/Ubuntu path; keep projects in
+  the WSL filesystem, not `/mnt/c`; native Windows unsupported — the
+  tooling is bash-based). README requirements row updated to match.
+
 - Acronym/abbreviation pronunciation layer: `shared/tts/tts_pronounce.py`
   (canonical, stdlib-only) with an embedded lexicon of word / letters /
   literal-replacement / phoneme-override directives, vendored byte-identically

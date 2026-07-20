@@ -39,6 +39,30 @@ install would need. The additional Linux libraries support Puppeteer's
 headless Chrome; on Ubuntu 24.04 some names resolve to `t64` packages
 automatically.
 
+## Windows (WSL2)
+
+Use WSL2 with Ubuntu; the entire toolchain (`install.sh`, the smoke test,
+and every command block in SKILL.md) assumes a POSIX shell, so native
+Windows is untested and unsupported. From PowerShell:
+
+```powershell
+wsl --install -d Ubuntu
+```
+
+Then, inside the Ubuntu shell, follow the **Debian/Ubuntu Linux** block
+above and the rest of this file unchanged. Claude Code, GitHub Copilot
+CLI, and Gemini CLI all run inside WSL.
+
+Two WSL-specific rules:
+
+- Keep the skill clone, the toolchain, and every video project in the WSL
+  filesystem (e.g. `~/my-explainer`), **never** under `/mnt/c/...` — 9P
+  filesystem translation makes Chrome rendering and TTS I/O many times
+  slower and can break file watching.
+- To hand a finished render to Windows apps (Teams, PowerPoint), copy it
+  out of WSL when done, or open `\\wsl$\Ubuntu\home\<you>\...` in
+  Explorer. Copy the MP4 rather than editing across the boundary.
+
 ## Source tools
 
 Clone HyperFrames and FFmpeg from their public repositories if absent

@@ -84,7 +84,7 @@ Any other agent: point its instruction file at an installed `SKILL.md`.
 | What | Why |
 | --- | --- |
 | Any file+shell agent (Scout, GitHub Copilot CLI, Claude Code, Gemini CLI) | the agent is the orchestrator |
-| macOS or Debian/Ubuntu Linux | both bootstrap paths are documented below |
+| macOS, Debian/Ubuntu Linux, or Windows via WSL2 | macOS and Linux bootstrap paths are below; on Windows use WSL2 Ubuntu and follow the Linux path (see [`references/install.md`](skills/explainer-video/references/install.md) — native Windows is unsupported, the tooling is bash-based) |
 | Node.js ≥ 22, Python 3.12 + [uv](https://docs.astral.sh/uv/), bun | HyperFrames CLI + Kokoro TTS |
 | ~4 GB disk | FFmpeg build, Kokoro-82M weights (~330 MB), headless Chrome |
 
