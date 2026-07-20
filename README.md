@@ -300,7 +300,8 @@ hosted templates or hand-crafted editing.
 | --- | --- |
 | [`skills/explainer-video/SKILL.md`](skills/explainer-video/SKILL.md) | the skill — agent frontmatter + the full production runbook |
 | [`install.sh`](install.sh) | installs the skill and resources locally or synced |
-| [`skills/explainer-video/scripts/`](skills/explainer-video/scripts/) | Kokoro TTS script (edit the scene narration list, run) + package smoke test |
+| [`skills/explainer-video/scripts/`](skills/explainer-video/scripts/) | Kokoro TTS script (edit the scene narration list, run), acronym-pronunciation helper, + package smoke test |
+| [`shared/tts/`](shared/tts/) | canonical acronym-pronunciation module (`tts_pronounce.py`), vendored byte-identically into each TTS skill's `scripts/` |
 | [`skills/explainer-video/assets/`](skills/explainer-video/assets/) | seek-safe composition skeleton and append-only decision-log schema |
 | [`skills/explainer-video/references/`](skills/explainer-video/references/) | the explainer method deep-dive and the once-per-machine toolchain bootstrap |
 | [`CHANGELOG.md`](CHANGELOG.md) | versioned release notes (version also in SKILL.md frontmatter) |

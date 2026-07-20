@@ -121,6 +121,7 @@ install_to_target() {
   install -m 0644 "${SKILL_SOURCE_DIR}/README.md" "${target_dir}/README.md"
   install -m 0644 "${SKILL_SOURCE_DIR}/LICENSE" "${target_dir}/LICENSE"
   install -m 0644 "${SKILL_PACKAGE_DIR}/scripts/tts_generate.py" "${target_dir}/scripts/"
+  install -m 0644 "${SKILL_PACKAGE_DIR}/scripts/tts_pronounce.py" "${target_dir}/scripts/"
   install -m 0755 "${SKILL_PACKAGE_DIR}/scripts/smoke_test.sh" "${target_dir}/scripts/"
   install -m 0644 \
     "${SKILL_PACKAGE_DIR}/assets/composition-skeleton.html" \
