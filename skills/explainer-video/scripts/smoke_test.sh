@@ -17,6 +17,7 @@ fail() { printf 'FAIL %s\n' "$1" >&2; FAILED=1; }
 for required_file in \
   SKILL.md \
   scripts/tts_generate.py \
+  scripts/tts_pronounce.py \
   assets/composition-skeleton.html \
   assets/spatial-components.html \
   assets/decision-log.json \
@@ -59,8 +60,27 @@ if command -v python3 >/dev/null; then
   else
     fail "tts_generate.py has a syntax error"
   fi
+  if python3 "${SKILL_DIR}/scripts/tts_pronounce.py" --self-test >/dev/null 2>&1; then
+    pass "tts_pronounce.py self-test"
+  else
+    fail "tts_pronounce.py self-test failed"
+  fi
 else
   echo "SKIP python3 not found — JSON/Python parse checks skipped"
+fi
+
+# --- Vendored-copy sync ----------------------------------------------------
+# scripts/tts_pronounce.py must stay byte-identical to the repo-level
+# canonical. Standalone installs don't ship shared/, so skip there.
+CANONICAL_PRONOUNCE="${SKILL_DIR}/../../shared/tts/tts_pronounce.py"
+if [[ -f "${CANONICAL_PRONOUNCE}" ]]; then
+  if cmp -s "${CANONICAL_PRONOUNCE}" "${SKILL_DIR}/scripts/tts_pronounce.py"; then
+    pass "vendored tts_pronounce.py matches shared/tts canonical"
+  else
+    fail "vendored tts_pronounce.py differs from shared/tts/tts_pronounce.py — re-copy the canonical"
+  fi
+else
+  echo "SKIP shared/tts canonical not present (standalone install) — sync check skipped"
 fi
 
 # Every skill-relative resource path mentioned in SKILL.md must exist.

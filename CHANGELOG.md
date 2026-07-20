@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Acronym/abbreviation pronunciation layer: `shared/tts/tts_pronounce.py`
+  (canonical, stdlib-only) with an embedded lexicon of word / letters /
+  literal-replacement / phoneme-override directives, vendored byte-identically
+  into `skills/explainer-video/scripts/` and copied beside `tts_generate.py`
+  at project setup. Narration is now written naturally ("ECG", not "E C G");
+  unknown all-caps tokens are deterministically spelled letter by letter and
+  reported after the run, and projects specialize via an optional
+  `tools/pronunciation.local.json` overlay. The smoke test gains the module's
+  `--self-test` and a `cmp` sync check between the vendored copy and the
+  canonical.
+
 - Second demo:
   [disc-golf-explainer-demo](https://github.com/mhuot/disc-golf-explainer-demo)
   — 66.1 s disc golf explainer produced with the skill and its design-system

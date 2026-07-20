@@ -21,7 +21,8 @@ Written for **Scout**, **Claude Code**, **GitHub Copilot CLI**, and
 `install.sh`) — and any other agent that can read files and run shell
 commands. Do not assume a clone under `~`: set
 `EXPLAINER_VIDEO_SKILL_DIR` to the directory containing this `SKILL.md`.
-Its `scripts/` directory has the TTS script; `assets/` has the composition
+Its `scripts/` directory has the TTS script and its acronym-pronunciation
+helper; `assets/` has the composition
 skeleton and decision-log schema; `references/` has the method deep-dive
 (`method.md`) and the once-per-machine toolchain bootstrap (`install.md`).
 
@@ -54,8 +55,14 @@ no competitor table, no hard CTA. The two shapes:
 | Recap + close | One-sentence summary, title card, "learn more" pointer | ~10% |
 
 Script budget: ≈2.55 words/second at Kokoro `af_heart` speed 1.1 → 115–130
-words for 45–50 s, ~150 for 60 s, ~210 for 85 s. Write acronyms spaced for
-TTS ("E C G", "A I"); on-screen text uses real spelling.
+words for 45–50 s, ~150 for 60 s, ~210 for 85 s. Write acronyms naturally
+("ECG", "AI") in both the script and on-screen text — at synthesis time
+`tools/tts_pronounce.py` derives the spoken form (word vs letter-by-letter)
+from its lexicon, and unknown acronyms are spelled letter by letter and
+reported. Classify domain terms in an optional
+`tools/pronunciation.local.json` (`{"NASA": "word", "ECG": "letters",
+"NGINX": "engine X"}`). Avoid ALL-CAPS emphasis: an all-caps word is
+treated as an acronym.
 
 ## Visual grammar (explainer-specific)
 
@@ -127,6 +134,8 @@ tips. Do not load that file when `doctor` already passes.
     assets/audio/                 # Kokoro WAVs + durations.json
     renders/
   tools/tts_generate.py           # from scripts/, edit SCENE_NARRATIONS only
+  tools/tts_pronounce.py          # from scripts/, acronym pronunciation (do not edit)
+  tools/pronunciation.local.json  # optional project lexicon overlay
   video/
     index.html                    # the composition
     assets/gsap.min.js            # vendored
@@ -142,6 +151,7 @@ uv venv --python 3.12 .venv
 uv pip install --python .venv/bin/python "kokoro>=0.9.4,<1" numpy soundfile
 mkdir -p tools
 cp "$EXPLAINER_VIDEO_SKILL_DIR/scripts/tts_generate.py" tools/
+cp "$EXPLAINER_VIDEO_SKILL_DIR/scripts/tts_pronounce.py" tools/
 mkdir -p video/assets
 curl -fL https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js \
   -o video/assets/gsap.min.js
@@ -169,7 +179,10 @@ networked setup step; the vendored file is then used locally during renders.
    `SCENE_NARRATIONS`, run in the venv
    (`PYTORCH_ENABLE_MPS_FALLBACK=1 .venv/bin/python
    tools/tts_generate.py`; first run downloads Kokoro-82M weights, while
-   later inference can run from the local cache). Then derive:
+   later inference can run from the local cache). If the run prints an
+   unknown-acronym WARNING, classify those tokens in
+   `tools/pronunciation.local.json` and re-run before deriving timing.
+   Then derive:
 
    ```
    n_start[0] = 0.5
