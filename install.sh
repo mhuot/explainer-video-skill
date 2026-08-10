@@ -122,6 +122,12 @@ install_to_target() {
   install -m 0644 "${SKILL_SOURCE_DIR}/LICENSE" "${target_dir}/LICENSE"
   install -m 0644 "${SKILL_PACKAGE_DIR}/scripts/tts_generate.py" "${target_dir}/scripts/"
   install -m 0644 "${SKILL_PACKAGE_DIR}/scripts/tts_pronounce.py" "${target_dir}/scripts/"
+  install -m 0755 "${SKILL_PACKAGE_DIR}/scripts/engine.sh" "${target_dir}/scripts/"
+  install -m 0644 "${SKILL_PACKAGE_DIR}/scripts/engine.ps1" "${target_dir}/scripts/"
+  install -m 0755 "${SKILL_PACKAGE_DIR}/scripts/new_project.sh" "${target_dir}/scripts/"
+  install -m 0644 "${SKILL_PACKAGE_DIR}/scripts/new_project.ps1" "${target_dir}/scripts/"
+  install -m 0755 "${SKILL_PACKAGE_DIR}/scripts/project_check.sh" "${target_dir}/scripts/"
+  install -m 0644 "${SKILL_PACKAGE_DIR}/scripts/project_check.ps1" "${target_dir}/scripts/"
   install -m 0755 "${SKILL_PACKAGE_DIR}/scripts/smoke_test.sh" "${target_dir}/scripts/"
   install -m 0644 \
     "${SKILL_PACKAGE_DIR}/assets/composition-skeleton.html" \
@@ -155,4 +161,6 @@ if [[ "${MODE}" == install ]]; then
   echo '  export PATH="${FFMPEG_BUILD_DIR:-$HOME/ffbuild}:$PATH"'
   # shellcheck disable=SC2016  # intentional: print literal $VAR syntax for the user to copy
   echo '  node "${HYPERFRAMES_DIR:-$HOME/hyperframes}/packages/cli/dist/cli.js" doctor'
+  echo "Create a starter project with:"
+  printf '  %q/scripts/new_project.sh customer-explainer\n' "${TARGETS[0]}"
 fi

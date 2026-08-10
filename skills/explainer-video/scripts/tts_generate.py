@@ -14,6 +14,8 @@ ALL-CAPS emphasis; an all-caps word reads as an acronym.
 """
 
 import json
+import re
+import shutil
 from collections.abc import Mapping
 from pathlib import Path
 
@@ -26,10 +28,14 @@ from tts_pronounce import load_local_lexicon, prepare_for_tts
 OUTPUT_DIRECTORY = (
     Path(__file__).resolve().parent.parent / "production" / "assets" / "audio"
 )
+COMPOSITION_AUDIO_DIRECTORY = (
+    Path(__file__).resolve().parent.parent / "video" / "assets" / "audio"
+)
 SAMPLE_RATE_HZ = 24_000
 VOICE_NAME = "af_heart"
 SPEECH_SPEED = 1.1
 LOCAL_LEXICON_PATH = Path(__file__).with_name("pronunciation.local.json")
+SCENE_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 
 # Explainer arc: hook → context → steps 1..3 → what it means → recap.
 SCENE_NARRATIONS: list[tuple[str, str]] = [
@@ -41,6 +47,27 @@ SCENE_NARRATIONS: list[tuple[str, str]] = [
     ("s6_meaning", "<the outcome for the user / patient / business>"),
     ("s7_recap", "<one-sentence summary and close>"),
 ]
+
+
+def validate_scene_narrations() -> None:
+    """Reject placeholders, unsafe IDs, and duplicate scene IDs."""
+    if not SCENE_NARRATIONS:
+        raise ValueError("SCENE_NARRATIONS must contain at least one scene")
+    seen_ids: set[str] = set()
+    for scene_id, narration_text in SCENE_NARRATIONS:
+        if not SCENE_ID_PATTERN.fullmatch(scene_id):
+            raise ValueError(
+                f"invalid scene ID {scene_id!r}; use lowercase letters, "
+                "numbers, underscores, or hyphens"
+            )
+        if scene_id in seen_ids:
+            raise ValueError(f"duplicate scene ID: {scene_id}")
+        seen_ids.add(scene_id)
+        narration_text = narration_text.strip()
+        if not narration_text:
+            raise ValueError(f"narration is empty for {scene_id}")
+        if narration_text.startswith("<") and narration_text.endswith(">"):
+            raise ValueError(f"replace the narration placeholder for {scene_id}")
 
 
 def synthesize_scene(
@@ -69,6 +96,8 @@ def synthesize_scene(
     scene_audio = np.concatenate([np.asarray(chunk) for chunk in audio_chunks])
     output_path = OUTPUT_DIRECTORY / f"{scene_id}.wav"
     soundfile.write(output_path, scene_audio, SAMPLE_RATE_HZ)
+    composition_path = COMPOSITION_AUDIO_DIRECTORY / output_path.name
+    shutil.copy2(output_path, composition_path)
     duration_seconds = len(scene_audio) / SAMPLE_RATE_HZ
     print(f"{scene_id}: {duration_seconds:.2f}s -> {output_path.name}")
     return duration_seconds, pronounced.unknown
@@ -76,7 +105,9 @@ def synthesize_scene(
 
 def main() -> None:
     """Generate all scene WAVs and the durations manifest."""
+    validate_scene_narrations()
     OUTPUT_DIRECTORY.mkdir(parents=True, exist_ok=True)
+    COMPOSITION_AUDIO_DIRECTORY.mkdir(parents=True, exist_ok=True)
     lexicon_overlay = load_local_lexicon(LOCAL_LEXICON_PATH)
     pipeline = KPipeline(lang_code="a", repo_id="hexgrad/Kokoro-82M")
     scene_durations: dict[str, float] = {}
@@ -91,6 +122,7 @@ def main() -> None:
     manifest_path.write_text(
         json.dumps(scene_durations, indent=2) + "\n", encoding="utf-8"
     )
+    shutil.copy2(manifest_path, COMPOSITION_AUDIO_DIRECTORY / manifest_path.name)
     total_seconds = sum(scene_durations.values())
     print(f"total narration: {total_seconds:.2f}s -> {manifest_path}")
     if unknown_acronyms:

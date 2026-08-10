@@ -3,7 +3,7 @@ name: explainer-video
 description: "Produce a 45–90 second narrated explainer video, how-it-works video, product walkthrough, solution preview, or customer-presentation video with local Kokoro TTS, HTML/CSS/GSAP scenes rendered by HyperFrames, FFmpeg encoding and QA, and auditable production gates. Use when asked to explain a concept or process as a video, make an explainer, preview a solution or demo, or create a narrated product tour."
 license: MIT
 metadata:
-  version: "1.0.0"
+  version: "1.0.3"
 ---
 
 # Explainer Video Production (local, offline-capable toolchain)
@@ -104,6 +104,26 @@ not a required checkout or reference repository.
 
 ## Environment check (once per machine)
 
+Prefer the versioned Docker engine:
+
+```bash
+docker pull ghcr.io/mhuot/skills-video-engine:0.3.1
+"$EXPLAINER_VIDEO_SKILL_DIR/scripts/engine.sh" hyperframes --version
+```
+
+On Windows PowerShell:
+
+```powershell
+docker pull ghcr.io/mhuot/skills-video-engine:0.3.1
+& "$env:EXPLAINER_VIDEO_SKILL_DIR\scripts\engine.ps1" hyperframes --version
+```
+
+The launchers are bundled with the skill and invoke the pinned image directly;
+do not require the user to clone the Engine repository or enter WSL. Check
+Docker and the Engine once before creating the project.
+
+Otherwise, validate the native toolchain:
+
 ```bash
 export FFMPEG_BUILD_DIR="${FFMPEG_BUILD_DIR:-$HOME/ffbuild}"
 export HYPERFRAMES_DIR="${HYPERFRAMES_DIR:-$HOME/hyperframes}"
@@ -120,6 +140,25 @@ FFmpeg with libx264, building the HyperFrames CLI, and agent permission
 tips. Do not load that file when `doctor` already passes.
 
 ## Project layout (one git repo per video, atomic commits)
+
+When the user requests a new explainer and no project exists, collect the
+missing brief fields and project location, then create and check the starter
+project:
+
+```bash
+"$EXPLAINER_VIDEO_SKILL_DIR/scripts/new_project.sh" customer-explainer
+cd customer-explainer
+"$EXPLAINER_VIDEO_SKILL_DIR/scripts/project_check.sh" --docker .
+```
+
+Run these commands on the user's behalf rather than asking them to operate the
+skill's internal scripts. Report the project path and surface actionable
+readiness failures.
+
+The scaffolder copies the packaged tools and starter assets, pins the engine
+in `video-project.json`, copies GSAP from that image with networking disabled,
+and refuses to overwrite an existing path. Use `--offline` or `-Offline` to
+require the image to already be cached.
 
 ```
 <project>/
@@ -142,24 +181,29 @@ tips. Do not load that file when `doctor` already passes.
     assets/audio/                 # WAV copies (composition-relative paths)
 ```
 
-Initialize the per-video Python environment before narration. This is
-required even if Kokoro is installed globally:
+If scaffolding is not appropriate, use this manual fallback:
 
 ```bash
 cd <project>
-uv venv --python 3.12 .venv
-uv pip install --python .venv/bin/python "kokoro>=0.9.4,<1" numpy soundfile
 mkdir -p tools
 cp "$EXPLAINER_VIDEO_SKILL_DIR/scripts/tts_generate.py" tools/
 cp "$EXPLAINER_VIDEO_SKILL_DIR/scripts/tts_pronounce.py" tools/
 mkdir -p video/assets
-curl -fL https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js \
-  -o video/assets/gsap.min.js
+docker run --rm --network none \
+  --volume "$PWD:/project" --workdir /project \
+  ghcr.io/mhuot/skills-video-engine:0.3.1 \
+  copy-gsap video/assets/gsap.min.js
 ```
 
-These packages cover every third-party import in the template. Keep the
-generated `.venv/` out of version control. The GSAP download is a one-time,
-networked setup step; the vendored file is then used locally during renders.
+For the native profile only, initialize the per-video environment:
+
+```bash
+uv venv --python 3.12 .venv
+uv pip install --python .venv/bin/python "kokoro>=0.9.4,<1" numpy soundfile
+```
+
+Keep `.venv/` out of version control. Preserve the vendored GSAP file with the
+project; scaffolding and rendering do not contact a CDN.
 
 ## Stages
 
@@ -176,10 +220,18 @@ networked setup step; the vendored file is then used locally during renders.
 3. **Script lock** — the words are final before any audio or visuals exist.
 4. **Narration + timing derivation** — copy
    `$EXPLAINER_VIDEO_SKILL_DIR/scripts/tts_generate.py`, edit
-   `SCENE_NARRATIONS`, run in the venv
-   (`PYTORCH_ENABLE_MPS_FALLBACK=1 .venv/bin/python
-   tools/tts_generate.py`; first run downloads Kokoro-82M weights, while
-   later inference can run from the local cache). If the run prints an
+   `SCENE_NARRATIONS`, then run one profile:
+
+   ```bash
+   # Docker profile
+   "$HOME/skills-video-engine/scripts/engine.sh" python tools/tts_generate.py
+
+   # Native profile
+   PYTORCH_ENABLE_MPS_FALLBACK=1 .venv/bin/python tools/tts_generate.py
+   ```
+
+   The first native run downloads Kokoro-82M weights; later inference can
+   use the local cache. The engine image already contains the weights. If the run prints an
    unknown-acronym WARNING, classify those tokens in
    `tools/pronunciation.local.json` and re-run before deriving timing.
    Then derive:
@@ -229,6 +281,14 @@ networked setup step; the vendored file is then used locally during renders.
 7. **Validation ladder** (cheap → expensive; fix everything before render):
 
    ```bash
+   # Docker profile, from the project root
+   ENGINE="$HOME/skills-video-engine/scripts/engine.sh"
+   mkdir -p production/renders production/snapshots
+   "$ENGINE" --workdir video hyperframes lint
+   "$ENGINE" --workdir video hyperframes check
+   "$ENGINE" --workdir video hyperframes snapshot --at <every scene midpoint>
+
+   # Native profile
    export PATH="$FFMPEG_BUILD_DIR:$PATH"; cd video
    CLI="node $HYPERFRAMES_DIR/packages/cli/dist/cli.js"
    $CLI lint
@@ -246,6 +306,18 @@ networked setup step; the vendored file is then used locally during renders.
 8. **Render + self-review** —
 
    ```bash
+   # Docker profile, from the project root
+   ENGINE="$HOME/skills-video-engine/scripts/engine.sh"
+   "$ENGINE" --workdir video hyperframes render --quality high \
+     --output ../production/renders/explainer-v1.mp4
+   "$ENGINE" ffprobe -v error \
+     -show_entries format=duration,size,bit_rate \
+     -show_entries stream=codec_name,width,height,r_frame_rate \
+     production/renders/explainer-v1.mp4
+   "$ENGINE" ffmpeg -i production/renders/explainer-v1.mp4 \
+     -af volumedetect -f null -
+
+   # Native profile, from video/
    OUT="../production/renders/explainer-v1.mp4"
    mkdir -p ../production/renders ../production/checkpoints/frames
    $CLI render --quality high --output "$OUT"
@@ -264,6 +336,12 @@ networked setup step; the vendored file is then used locally during renders.
    extracted image, confirm duration is within ±0.1 s of plan and
    `max_volume` is below 0 dB, then write
    `production/checkpoints/self-review.md`.
+   When a Skills Video Studio project uses ordered
+   `video/compositions/*.html` files, rerender only the changed composition
+   names with Studio's `render_segments` API or MCP tool. Studio reuses cached
+   unchanged segments and assembles the complete master after the changed
+   renders succeed. Use the normal full render for single-composition
+   projects.
 9. **Packaging** — Teams/SharePoint/email preview: the H.264+AAC master
    plays everywhere on most video platforms and players as-is. For YouTube/Stream
    publication, make a derivative: stream-copy video, two-pass `loudnorm`

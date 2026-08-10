@@ -84,9 +84,42 @@ Any other agent: point its instruction file at an installed `SKILL.md`.
 | What | Why |
 | --- | --- |
 | Any file+shell agent (Scout, GitHub Copilot CLI, Claude Code, Gemini CLI) | the agent is the orchestrator |
-| macOS, Debian/Ubuntu Linux, or Windows via WSL2 | macOS and Linux bootstrap paths are below; on Windows use WSL2 Ubuntu and follow the Linux path (see [`references/install.md`](skills/explainer-video/references/install.md) — native Windows is unsupported, the tooling is bash-based) |
-| Node.js ≥ 22, Python 3.12 + [uv](https://docs.astral.sh/uv/), bun | HyperFrames CLI + Kokoro TTS |
+| Docker Desktop or Docker Engine + Compose (recommended) **or** the native toolchain below | portable engine with fewer host dependencies |
+| macOS, Debian/Ubuntu Linux, or Windows 11 | Docker users can use Bash or native PowerShell; WSL2 is optional |
+| Node.js ≥ 22, Python 3.12 + [uv](https://docs.astral.sh/uv/), bun (native profile only) | HyperFrames CLI + Kokoro TTS |
 | ~4 GB disk | FFmpeg build, Kokoro-82M weights (~330 MB), headless Chrome |
+
+## Docker-first toolchain
+
+If Docker is available, use the versioned
+[`skills-video-engine`](https://github.com/mhuot/skills-video-engine) instead
+of installing Kokoro, HyperFrames, Chrome, and FFmpeg separately:
+
+```bash
+docker pull ghcr.io/mhuot/skills-video-engine:0.3.1
+
+cd /path/to/video-project
+mkdir -p production/renders production/snapshots
+"$EXPLAINER_VIDEO_SKILL_DIR/scripts/engine.sh" python tools/tts_generate.py
+"$EXPLAINER_VIDEO_SKILL_DIR/scripts/engine.sh" --workdir video hyperframes lint
+"$EXPLAINER_VIDEO_SKILL_DIR/scripts/engine.sh" --workdir video hyperframes check
+"$EXPLAINER_VIDEO_SKILL_DIR/scripts/engine.sh" --workdir video \
+  hyperframes render --quality high --output ../production/renders/master.mp4
+```
+
+The helper mounts only the video project, uses the host UID/GID, and disables
+container networking. The TTS template writes the audited narration files to
+`production/assets/audio/` and composition-ready copies to
+`video/assets/audio/`.
+
+Optional
+[`skills-video-studio`](https://github.com/mhuot/skills-video-studio) provides
+a local web and MCP control plane over the same Engine. It records trusted
+production jobs and can rerender selected changed compositions while reusing
+cached segment MP4s for the rest of the master.
+
+Continue at **5. Install the skill** below. The native source-tool
+installation remains available for users who do not want Docker.
 
 ## One-time install
 
@@ -258,13 +291,28 @@ export EXPLAINER_VIDEO_SKILL_DIR="/path/to/installed-or-source/explainer-video-s
 mkdir -p tools
 cp "$EXPLAINER_VIDEO_SKILL_DIR/scripts/tts_generate.py" tools/
 mkdir -p video/assets
-curl -fL https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js \
-  -o video/assets/gsap.min.js
+docker run --rm --network none \
+  --volume "$PWD:/project" --workdir /project \
+  ghcr.io/mhuot/skills-video-engine:0.3.1 \
+  copy-gsap video/assets/gsap.min.js
 ```
 
-The final command vendors GSAP once; renders never load it from a CDN.
+The final command vendors GSAP from the pinned Engine image; renders never
+load it from a CDN.
 
 ## Usage
+
+Create a ready-to-edit project without manually copying the package:
+
+```bash
+export EXPLAINER_VIDEO_SKILL_DIR="$HOME/.copilot/skills/explainer-video"
+"$EXPLAINER_VIDEO_SKILL_DIR/scripts/new_project.sh" customer-explainer
+cd customer-explainer
+"$EXPLAINER_VIDEO_SKILL_DIR/scripts/project_check.sh" --docker .
+```
+
+The scaffolder refuses to overwrite existing paths. For offline setup, pass
+`--offline`; PowerShell uses `-Offline`.
 
 Ask your agent:
 
@@ -300,7 +348,8 @@ hosted templates or hand-crafted editing.
 | --- | --- |
 | [`skills/explainer-video/SKILL.md`](skills/explainer-video/SKILL.md) | the skill — agent frontmatter + the full production runbook |
 | [`install.sh`](install.sh) | installs the skill and resources locally or synced |
-| [`skills/explainer-video/scripts/`](skills/explainer-video/scripts/) | Kokoro TTS script (edit the scene narration list, run), acronym-pronunciation helper, + package smoke test |
+| [`skills/explainer-video/scripts/`](skills/explainer-video/scripts/) | Safe project scaffolder, readiness checker, Kokoro TTS template, acronym-pronunciation helper, and package smoke test |
+| [`scripts/export-hls-pack.sh`](scripts/export-hls-pack.sh) | syncs shared runtime assets into the Microsoft-tailored `hls-skills` package while preserving its metadata and guidance |
 | [`shared/tts/`](shared/tts/) | canonical acronym-pronunciation module (`tts_pronounce.py`), vendored byte-identically into each TTS skill's `scripts/` |
 | [`skills/explainer-video/assets/`](skills/explainer-video/assets/) | seek-safe composition skeleton and append-only decision-log schema |
 | [`skills/explainer-video/references/`](skills/explainer-video/references/) | the explainer method deep-dive and the once-per-machine toolchain bootstrap |

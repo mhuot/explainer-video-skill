@@ -2,10 +2,21 @@
 
 ## Unreleased
 
-- Windows guidance: `references/install.md` gains a **Windows (WSL2)**
-  section (WSL2 Ubuntu + the existing Debian/Ubuntu path; keep projects in
-  the WSL filesystem, not `/mnt/c`; native Windows unsupported — the
-  tooling is bash-based). README requirements row updated to match.
+- Windows Docker setup now uses packaged native PowerShell launchers and no
+  longer requires WSL or a local Engine checkout.
+- Project scaffolding copies pinned GSAP from Skills Video Engine `0.3.1`
+  with networking disabled, avoiding public-CDN policy failures.
+- Agent-owned setup: the skill now explicitly runs its packaged scaffolder and
+  project checker after collecting the brief and destination, rather than
+  requiring users to type internal setup commands.
+- Docker-first usability: added a non-destructive `scripts/new_project.sh`
+  scaffolder and `scripts/project_check.sh` preflight checker. New projects
+  include the production layout, starter composition, narration tools, pinned
+  engine metadata, decision log, vendored GSAP, and copy-paste Docker workflow.
+  Narration output is preserved under `production/assets/audio/` and copied
+  into `video/assets/audio/` for composition-relative playback.
+- Added `scripts/export-hls-pack.sh` as the explicit synchronization contract
+  for shared runtime assets in the Microsoft-tailored `hls-skills` package.
 
 - Acronym/abbreviation pronunciation layer: `shared/tts/tts_pronounce.py`
   (canonical, stdlib-only) with an embedded lexicon of word / letters /

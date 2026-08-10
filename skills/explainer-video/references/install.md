@@ -39,29 +39,25 @@ install would need. The additional Linux libraries support Puppeteer's
 headless Chrome; on Ubuntu 24.04 some names resolve to `t64` packages
 automatically.
 
-## Windows (WSL2)
+## Windows 11
 
-Use WSL2 with Ubuntu; the entire toolchain (`install.sh`, the smoke test,
-and every command block in SKILL.md) assumes a POSIX shell, so native
-Windows is untested and unsupported. From PowerShell:
+Use Docker Desktop with the packaged PowerShell launchers. Native Windows does
+not require WSL or an Engine repository checkout:
 
 ```powershell
-wsl --install -d Ubuntu
+docker pull ghcr.io/mhuot/skills-video-engine:0.3.1
+& "$env:EXPLAINER_VIDEO_SKILL_DIR\scripts\engine.ps1" hyperframes --version
 ```
 
-Then, inside the Ubuntu shell, follow the **Debian/Ubuntu Linux** block
-above and the rest of this file unchanged. Claude Code, GitHub Copilot
-CLI, and Gemini CLI all run inside WSL.
+The project scaffolder is also available as `scripts/new_project.ps1`; it
+copies pinned GSAP from the Engine image with container networking disabled.
 
-Two WSL-specific rules:
+WSL2 remains an option for the advanced native toolchain. If you use it,
+follow the **Debian/Ubuntu Linux** block above and keep the skill, toolchain,
+and projects in the WSL filesystem rather than `/mnt/c`.
 
-- Keep the skill clone, the toolchain, and every video project in the WSL
-  filesystem (e.g. `~/my-explainer`), **never** under `/mnt/c/...` — 9P
-  filesystem translation makes Chrome rendering and TTS I/O many times
-  slower and can break file watching.
-- To hand a finished render to Windows apps (Teams, PowerPoint), copy it
-  out of WSL when done, or open `\\wsl$\Ubuntu\home\<you>\...` in
-  Explorer. Copy the MP4 rather than editing across the boundary.
+To hand a WSL render to Windows apps, copy the MP4 out of WSL or open
+`\\wsl$\Ubuntu\home\<you>\...` in Explorer.
 
 ## Source tools
 

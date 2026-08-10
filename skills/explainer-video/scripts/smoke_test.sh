@@ -18,6 +18,12 @@ for required_file in \
   SKILL.md \
   scripts/tts_generate.py \
   scripts/tts_pronounce.py \
+  scripts/engine.sh \
+  scripts/engine.ps1 \
+  scripts/new_project.sh \
+  scripts/new_project.ps1 \
+  scripts/project_check.sh \
+  scripts/project_check.ps1 \
   assets/composition-skeleton.html \
   assets/spatial-components.html \
   assets/decision-log.json \
@@ -29,6 +35,113 @@ for required_file in \
     fail "missing: ${required_file}"
   fi
 done
+
+# --- Project scaffolder ----------------------------------------------------
+SCAFFOLD_ROOT="$(mktemp -d)"
+trap 'rm -rf "${SCAFFOLD_ROOT}"' EXIT
+printf 'window.gsap={};\n' >"${SCAFFOLD_ROOT}/gsap.min.js"
+mkdir -p "${SCAFFOLD_ROOT}/bin"
+cat >"${SCAFFOLD_ROOT}/bin/docker" <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+volume=""
+while [[ $# -gt 0 ]]; do
+  if [[ "$1" == "--volume" ]]; then
+    volume="$2"
+    shift 2
+  else
+    shift
+  fi
+done
+[[ "${volume}" == *":/project" ]]
+project_root="${volume%:/project}"
+mkdir -p "${project_root}/video/assets"
+printf 'window.gsap={};\n' >"${project_root}/video/assets/gsap.min.js"
+EOF
+chmod +x "${SCAFFOLD_ROOT}/bin/docker"
+if PATH="${SCAFFOLD_ROOT}/bin:${PATH}" \
+  "${SKILL_DIR}/scripts/new_project.sh" \
+  "${SCAFFOLD_ROOT}/image-backed" >/dev/null; then
+  pass "new_project.sh copies GSAP from the engine image"
+else
+  fail "new_project.sh failed to use image-bundled GSAP"
+fi
+if "${SKILL_DIR}/scripts/new_project.sh" --offline \
+  --gsap-source "${SCAFFOLD_ROOT}/gsap.min.js" \
+  "${SCAFFOLD_ROOT}/example" >/dev/null; then
+  pass "new_project.sh creates an offline project"
+else
+  fail "new_project.sh failed"
+fi
+if "${SKILL_DIR}/scripts/project_check.sh" "${SCAFFOLD_ROOT}/example" >/dev/null; then
+  pass "project_check.sh accepts the scaffold"
+else
+  fail "project_check.sh rejected the scaffold"
+fi
+for runner in tools/engine.sh tools/engine.ps1; do
+  if [[ -f "${SCAFFOLD_ROOT}/example/${runner}" ]]; then
+    pass "new_project.sh includes ${runner}"
+  else
+    fail "new_project.sh omitted ${runner}"
+  fi
+done
+if "${SKILL_DIR}/scripts/new_project.sh" --offline \
+  --gsap-source "${SCAFFOLD_ROOT}/gsap.min.js" \
+  "${SCAFFOLD_ROOT}/example" >/dev/null 2>&1; then
+  fail "new_project.sh overwrote a non-empty project"
+else
+  pass "new_project.sh refuses to overwrite"
+fi
+if "${SKILL_DIR}/scripts/new_project.sh" --offline \
+  --gsap-source "${SCAFFOLD_ROOT}/missing-gsap.min.js" \
+  "${SCAFFOLD_ROOT}/broken" >/dev/null 2>&1; then
+  fail "new_project.sh accepted a missing GSAP source"
+elif [[ -e "${SCAFFOLD_ROOT}/broken" ]]; then
+  fail "new_project.sh left a partial project after failure"
+else
+  pass "new_project.sh cleans up failed scaffolds"
+fi
+
+if command -v pwsh >/dev/null; then
+  POWERSHELL_ROOT="$(mktemp -d)"
+  printf 'window.gsap={};\n' >"${POWERSHELL_ROOT}/gsap.min.js"
+  mkdir -p "${POWERSHELL_ROOT}/bin"
+  cp "${SCAFFOLD_ROOT}/bin/docker" "${POWERSHELL_ROOT}/bin/docker"
+  if PATH="${POWERSHELL_ROOT}/bin:${PATH}" \
+    pwsh -NoProfile -File "${SKILL_DIR}/scripts/new_project.ps1" \
+    "${POWERSHELL_ROOT}/image-backed" >/dev/null; then
+    pass "new_project.ps1 copies GSAP from the engine image"
+  else
+    fail "new_project.ps1 failed to use image-bundled GSAP"
+  fi
+  if pwsh -NoProfile -File "${SKILL_DIR}/scripts/new_project.ps1" \
+    -Offline -GsapSource "${POWERSHELL_ROOT}/gsap.min.js" \
+    "${POWERSHELL_ROOT}/example" >/dev/null; then
+    pass "new_project.ps1 creates an offline project"
+  else
+    fail "new_project.ps1 failed"
+  fi
+  if pwsh -NoProfile -File "${SKILL_DIR}/scripts/project_check.ps1" \
+    "${POWERSHELL_ROOT}/example" >/dev/null; then
+    pass "project_check.ps1 accepts the scaffold"
+  else
+    fail "project_check.ps1 rejected the scaffold"
+  fi
+  rm -rf "${POWERSHELL_ROOT}"
+else
+  echo "SKIP pwsh not found — PowerShell scaffold checks skipped"
+fi
+
+if grep -R -q "cdn.jsdelivr.net" \
+  "${SKILL_DIR}/SKILL.md" \
+  "${SKILL_DIR}/scripts/new_project.sh" \
+  "${SKILL_DIR}/scripts/new_project.ps1"; then
+  fail "scaffolding still references jsDelivr"
+else
+  pass "scaffolding has no jsDelivr dependency"
+fi
+rm -rf "${SCAFFOLD_ROOT}"
+trap - EXIT
 
 # --- Frontmatter -----------------------------------------------------------
 frontmatter="$(awk '/^---$/{count++; next} count==1' "${SKILL_DIR}/SKILL.md")"
@@ -123,9 +236,6 @@ if [[ -f "${CLI_JS}" && -x "${FFMPEG_BUILD_DIR}/ffmpeg" ]]; then
   gsap_local="$(find "${HYPERFRAMES_DIR}/node_modules" -path '*gsap/dist/gsap.min.js' 2>/dev/null | head -1)"
   if [[ -n "${gsap_local}" ]]; then
     cp "${gsap_local}" "${WORKDIR}/video/assets/gsap.min.js"
-  else
-    curl -fsL --max-time 30 https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js \
-      -o "${WORKDIR}/video/assets/gsap.min.js" || true
   fi
   if [[ ! -s "${WORKDIR}/video/assets/gsap.min.js" ]]; then
     echo "SKIP could not vendor gsap.min.js (offline?) — lint/check skipped"

@@ -21,6 +21,10 @@ jobs:
       - name: Run ShellCheck
         run: |
           shellcheck install.sh
+          shellcheck scripts/export-hls-pack.sh
+          shellcheck skills/explainer-video/scripts/engine.sh
+          shellcheck skills/explainer-video/scripts/new_project.sh
+          shellcheck skills/explainer-video/scripts/project_check.sh
           shellcheck skills/explainer-video/scripts/smoke_test.sh
 
   smoke-test:
@@ -35,6 +39,12 @@ jobs:
         run: |
           mkdir -p ~/.claude/skills ~/.copilot/skills ~/.gemini/antigravity/global_skills ~/.copilot/m-skills
           bash install.sh
+          test -x ~/.copilot/skills/explainer-video/scripts/new_project.sh
+          test -x ~/.copilot/skills/explainer-video/scripts/project_check.sh
+          test -x ~/.copilot/skills/explainer-video/scripts/engine.sh
+          test -f ~/.copilot/skills/explainer-video/scripts/engine.ps1
+          test -f ~/.copilot/skills/explainer-video/scripts/new_project.ps1
+          test -f ~/.copilot/skills/explainer-video/scripts/project_check.ps1
           bash install.sh --version
           bash install.sh --uninstall
           bash install.sh --version | grep -q "not installed" || { echo "uninstall left copies behind"; exit 1; }
